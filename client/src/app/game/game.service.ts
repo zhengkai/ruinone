@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Application, Graphics, Text } from 'pixi.js';
+import { World } from './world';
+import { Screen } from './screen';
 import { Debug } from './debug';
 
 @Injectable({
@@ -9,6 +11,8 @@ export class GameService {
 
 	app: Application;
 
+	world: World;
+	screen: Screen;
 	debug: Debug;
 
 	init = false;
@@ -29,6 +33,10 @@ export class GameService {
 
 		this.count++;
 
+		this.world.run();
+
+		this.screen.run();
+
 		this.debug.run();
 		// this.t.text('' + this.count);
 
@@ -39,7 +47,12 @@ export class GameService {
 
 		const a = this.app;
 
+		this.world = new World(a);
+
+		this.screen = new Screen(a);
+
 		this.debug = new Debug(a);
+		this.debug.target = this;
 
 		console.log('game init', a);
 	}

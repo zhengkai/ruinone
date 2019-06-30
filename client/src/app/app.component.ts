@@ -1,6 +1,7 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, HostListener } from '@angular/core';
 import { Application } from 'pixi.js';
 import { GameService } from './game/game.service';
+import { Input } from './game/input';
 
 @Component({
 	selector: 'app-root',
@@ -36,6 +37,23 @@ export class AppComponent {
 
 		const a = this.app;
 
-		a.renderer.backgroundColor = 0x061639;
+		a.renderer.backgroundColor = 0x112233;
+	}
+
+	@HostListener('click', ['$event'])
+	click(e) {
+		// console.log('mouse click', e);
+	}
+
+	@HostListener('window:keydown', ['$event'])
+	keyDown(e: KeyboardEvent) {
+		Input.key(e.keyCode, true);
+		// console.log('keydown', e.keyCode, e);
+	}
+
+	@HostListener('window:keyup', ['$event'])
+	keyUp(e: KeyboardEvent) {
+		Input.key(e.keyCode, false);
+		// console.log('keyup', e.keyCode, e);
 	}
 }
