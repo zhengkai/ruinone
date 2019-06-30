@@ -1,10 +1,16 @@
-
+export interface InputData {
+	n: boolean;
+	s: boolean;
+	e: boolean;
+	w: boolean;
+	jump: boolean;
+}
 
 export class Input {
 
 	static cache: any = false;
 
-	static stat = {
+	static stat: InputData = {
 		n: false,
 		s: false,
 		e: false,
@@ -37,14 +43,14 @@ export class Input {
 		this.cache = null;
 	}
 
-	static get() {
+	static get(): InputData {
 
 		if (this.cache) {
 			return this.cache;
 		}
 
 		const s = this.stat;
-		const re = {
+		const re: InputData = {
 			s: s.s,
 			n: s.n,
 			w: s.w,

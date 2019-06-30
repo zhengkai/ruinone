@@ -19,8 +19,6 @@ export class GameService {
 
 	t: Text;
 
-	count = 0;
-
 	constructor() {
 	}
 
@@ -31,12 +29,8 @@ export class GameService {
 			this.doInit();
 		}
 
-		this.count++;
-
-		this.world.run();
-
 		this.screen.run();
-
+		this.world.run();
 		this.debug.run();
 		// this.t.text('' + this.count);
 
@@ -48,6 +42,7 @@ export class GameService {
 		const a = this.app;
 
 		this.world = new World(a);
+		this.world.target = this;
 
 		this.screen = new Screen(a);
 
