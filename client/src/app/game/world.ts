@@ -90,8 +90,6 @@ export class World {
 		const p = new Player(this.gridSize);
 		this.c.addChild(p.graphic);
 		this.child.push(p);
-
-		console.log(p);
 		return p;
 	}
 

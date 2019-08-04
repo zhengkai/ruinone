@@ -118,11 +118,11 @@ export class Debug {
 		f.position.y = s.height - 6;
 		f.zIndex = 100000;
 
-		this.drawTick();
-		this.drawSignature();
-		this.drawFPS();
-		this.drawSize();
-		this.drawPad();
+		// this.drawTick();
+		// this.drawSignature();
+		// this.drawFPS();
+		// this.drawSize();
+		// this.drawPad();
 	}
 
 	drawTick() {
@@ -169,7 +169,7 @@ export class Debug {
 
 	drawSignature() {
 		if (this.prevSignature) {
-			return;
+			this.foot.removeChild(this.prevSignature);
 		}
 		const sign = new Text('Ruin.One by Zheng Kai', this.style);
 		this.prevSignature = sign;
