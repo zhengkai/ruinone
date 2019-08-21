@@ -1,16 +1,13 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
-
 func main() {
-	fmt.Println("wasm init")
 
 	register()
 
-	time.Sleep(10 * 365 * 86400 * time.Second)
+	theLock := make(chan bool)
+	<-theLock
+
+	// time.Sleep(10 * 365 * 86400 * time.Second)
 }
 
 func fibonacci(n int) int {

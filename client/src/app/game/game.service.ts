@@ -9,6 +9,8 @@ import { Debug } from './debug';
 })
 export class GameService {
 
+	wasmReady = false;
+
 	app: Application;
 
 	world: World;
@@ -30,11 +32,19 @@ export class GameService {
 		}
 
 		this.screen.run();
-		this.world.run();
-		this.debug.run();
+		if (this.wasmReady) {
+			this.world.run();
+			this.debug.run();
+		}
 		// this.t.text('' + this.count);
 
 		// console.log('game tick', this.app, Math.PI / delta);
+	}
+
+	wasmInit() {
+		console.log('wasmInit');
+		this.wasmReady = true;
+		this.screen.wasmInit();
 	}
 
 	doInit() {

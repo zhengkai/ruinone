@@ -4,6 +4,10 @@ import { GameService } from './game/game.service';
 import { WasmService } from './game/wasm.service';
 import { Input } from './game/input';
 
+declare const goRoom: any;
+declare const goPlayer: any;
+declare const goTick: any;
+
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
@@ -21,7 +25,11 @@ export class AppComponent {
 		private wasm: WasmService,
 	) {
 		this.init();
-		wasm.test();
+
+		(async () => {
+			await wasm.wait();
+			game.wasmInit();
+		})();
 	}
 
 	init() {

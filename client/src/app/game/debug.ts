@@ -118,11 +118,11 @@ export class Debug {
 		f.position.y = s.height - 6;
 		f.zIndex = 100000;
 
-		// this.drawTick();
-		// this.drawSignature();
-		// this.drawFPS();
-		// this.drawSize();
-		// this.drawPad();
+		this.drawTick();
+		this.drawSignature();
+		this.drawFPS();
+		this.drawSize();
+		this.drawPad();
 	}
 
 	drawTick() {
@@ -133,6 +133,7 @@ export class Debug {
 
 		if (this.prevTickText) {
 			c.removeChild(this.prevTickText);
+			this.prevTickText.destroy();
 		}
 		const tick = new Text(s, this.style);
 		tick.anchor.x = 1;
@@ -158,8 +159,9 @@ export class Debug {
 		const s = 'Screen: ' + sc.width + 'x' + sc.height  + ', Grid: ' + so.gridSize;
 		const c = this.head;
 
-		if (this.prevFPSText) {
+		if (this.prevSizeText) {
 			c.removeChild(this.prevSizeText);
+			this.prevSizeText.destroy();
 		}
 		const size = new Text(s, this.style);
 		size.anchor.x = 1;
@@ -170,6 +172,7 @@ export class Debug {
 	drawSignature() {
 		if (this.prevSignature) {
 			this.foot.removeChild(this.prevSignature);
+			this.prevSignature.destroy();
 		}
 		const sign = new Text('Ruin.One by Zheng Kai', this.style);
 		this.prevSignature = sign;
@@ -219,6 +222,7 @@ export class Debug {
 
 		if (this.prevFPSText) {
 			c.removeChild(this.prevFPSText);
+			this.prevFPSText.destroy();
 		}
 		const fps = new Text(s, this.style);
 		fps.anchor.x = 1;

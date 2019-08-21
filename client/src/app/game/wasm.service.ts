@@ -6,6 +6,9 @@ import { filter, map } from 'rxjs/operators';
 declare const WebAssembly: any;
 declare const Go: any;
 declare const goFibonacci: any;
+declare const goRoom: any;
+declare const goPlayer: any;
+declare const goTick: any;
 
 @Injectable({
 	providedIn: 'root'
@@ -14,48 +17,37 @@ export class WasmService {
 
 	module: any;
 
-	wasmReady = new BehaviorSubject<boolean>(false);
+	ev = new EventTarget();
+
+	ready: boolean;
 
 	constructor() {
-
-		console.log('WasmService load');
-
 		this.instantiateWasm('/assets/main.wasm');
 	}
 
-	test() {
-		console.log('wasm test');
+	async wait() {
+		if (this.ready) {
+			return;
+		}
+
+		const waitForCallback = new Promise((resolve, reject) => {
+			this.ev.addEventListener('initialized', (event) => {
+				resolve();
+			});
+		});
+
+		return waitForCallback;
 	}
 
 	private async instantiateWasm(url: string) {
-		// fetch the wasm file
 		const wasmFile = await fetch(url);
-		// console.log('wasmFile', url, wasmFile);
-
 		const source = await wasmFile.arrayBuffer();
-		// console.log('source', source);
 
 		const go = new Go();
-
 		const result = await WebAssembly.instantiate(source, go.importObject);
 
-		// console.log('result', result);
-
 		go.run(result.instance);
-
-		for (let i = 1; i < 10; i++) {
-			const x = goFibonacci(i);
-			console.log('fibonacci', i, x);
-		}
+		this.ready = true;
+		this.ev.dispatchEvent(new CustomEvent('initialized'));
 	}
-
-	/*
-	public fibonacci(input: number): Observable<number> {
-		return this.wasmReady.pipe(filter(value => value === true)).pipe(
-			map(() => {
-				return this.module._fibonacci(input);
-			})
-		);
-	}
-	 */
 }
