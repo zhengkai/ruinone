@@ -26,6 +26,12 @@ func manager() {
 		case *CmdRoomTick:
 			mngRoomTick(a.(*CmdRoomTick))
 
+		case *CmdJump:
+			mngJump(a.(*CmdJump))
+
+		case *CmdRun:
+			mngRun(a.(*CmdRun))
+
 		default:
 			j.Log(`unknown cmd`, a)
 		}

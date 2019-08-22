@@ -29,7 +29,7 @@ func mngNewRoom(a *CmdNewRoom) {
 }
 
 func mngRoomTick(a *CmdRoomTick) {
-	j.Log(`tick start`)
+	// j.Log(`tick start`)
 
 	if a.ID > 0 {
 		r, ok := roomMap[a.ID]
@@ -44,7 +44,7 @@ func mngRoomTick(a *CmdRoomTick) {
 		a.Dump = room.Dump()
 	}
 
-	j.Log(`tick dump`, a.Dump)
+	// j.Log(`tick dump`, a.Dump)
 
 	a.mutex.Unlock()
 }
@@ -65,10 +65,10 @@ func (r *Room) tickPlayer(p *Player) {
 
 	p.parseControl()
 
-	if p.Acceleration > 0 {
-		p.Y += p.Acceleration
-		p.Acceleration -= p.Fall
-	}
+	p.Y += p.Acceleration
+	p.Acceleration -= p.Fall
+
+	p.X += p.control.Run * 0.2
 
 	if p.X < 0 {
 		p.X = 0
@@ -92,6 +92,7 @@ func (r *Room) tickPlayer(p *Player) {
 func (r *Room) Dump() (a map[string]interface{}) {
 
 	a = make(map[string]interface{})
+	a[`tick`] = r.Tick
 
 	pl := make(map[string]interface{})
 	a[`playerList`] = pl

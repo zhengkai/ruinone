@@ -1,9 +1,17 @@
 import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
 import { GameService } from './game.service';
-import { Player } from './player';
+import { Player, PlayerDump } from './player';
 import { Input } from './input';
 
+declare const goRoom: any;
+declare const goPlayer: any;
+declare const goTick: any;
+declare const goJump: any;
+declare const goRun: any;
+
 export class World {
+
+	wasmReady = false;
 
 	c = new Container();
 
@@ -20,12 +28,39 @@ export class World {
 
 	target: GameService;
 
+	roomID = 0;
+	playerID = 0;
+
+	jumpSent = false;
+	runSent = 0;
+
 	constructor(private app: Application) {
 		app.stage.addChild(this.c);
+
+	}
+
+	wasmInit() {
+		this.wasmReady = true;
+		this.roomID = goRoom();
+		this.playerID = goPlayer();
+		this.center();
+		this.me = this.newChild();
 	}
 
 	run() {
-		this.tick++;
+		// this.tick++;
+
+		// console.log('tick start');
+		const dump = goTick(this.roomID);
+		this.tick = dump.tick;
+		Object.entries(dump.playerList).map(([_, v]) => {
+			const d = v as PlayerDump;
+			if (d.id === this.playerID) {
+				this.me.setDump(d);
+			}
+		});
+
+		// console.log('tick dump', dump);
 
 		this.center();
 
@@ -56,33 +91,10 @@ export class World {
 
 		const gs = this.target.screen.gridSize;
 
+		// console.log('child', this.child.length);
+
 		for (const c of this.child) {
-
-			if (c.acceleration) {
-				c.y += c.acceleration;
-				c.acceleration -= c.fall;
-			}
-
-			if (c.x < 0) {
-				c.x = 0;
-			} else if (c.x > 16) {
-				c.x = 16;
-			}
-
-			if (c.y < 0) {
-				c.jumpCount = 2;
-				c.acceleration = 0;
-				c.y = 0;
-			} else if (c.y > 7) {
-				c.y = 7;
-			}
-
-			const g = c.graphic;
-			g.position.x = gs * (c.x - this.x);
-			g.position.y = - gs * (c.y - this.y);
-
-			const scale = gs / c.gridSize;
-			g.scale.set(scale, scale);
+			c.draw(gs, this.x, this.y);
 		}
 	}
 
@@ -96,20 +108,21 @@ export class World {
 	control() {
 		const c = Input.get();
 		const p = this.me;
-		if (c.e) {
-			p.x += p.speed;
-		} else if (c.w) {
-			p.x -= p.speed;
+
+		if (this.jumpSent !== c.jump) {
+			this.jumpSent = c.jump;
+			goJump(this.playerID, this.jumpSent);
 		}
 
-		if (c.jump) {
-			if (!p.jumpPress && p.jumpCount) {
-				p.jumpCount--;
-				p.acceleration = p.jump;
-			}
-			p.jumpPress = true;
-		} else {
-			p.jumpPress = false;
+		let run = 0;
+		if (c.e) {
+			run = 1;
+		} else if (c.w) {
+			run = -1;
+		}
+		if (this.runSent !== run) {
+			this.runSent = run;
+			goRun(this.playerID, this.runSent);
 		}
 	}
 }

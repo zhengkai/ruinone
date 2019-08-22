@@ -29,6 +29,9 @@ export class GameService {
 		if (!this.init) {
 			this.init = true;
 			this.doInit();
+			if (this.wasmReady) {
+				this.wasmInit();
+			}
 		}
 
 		this.screen.run();
@@ -42,9 +45,13 @@ export class GameService {
 	}
 
 	wasmInit() {
-		console.log('wasmInit');
 		this.wasmReady = true;
+		if (!this.init) {
+			return;
+		}
+		console.log('wasmInit');
 		this.screen.wasmInit();
+		this.world.wasmInit();
 	}
 
 	doInit() {

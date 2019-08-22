@@ -63,22 +63,21 @@ export class Screen {
 
 	wasmInit() {
 		this.wasmReady = true;
-		this.head.removeChild(this.loadingText);
-		this.loadingText.destroy();
+		this.cleanLoading();
 	}
 
 	loading() {
-		const c = this.head;
+		this.cleanLoading();
+		this.style.fontSize = this.gridSize / 4;
+		const text = new Text('Loading ...', this.style);
+		this.head.addChild(text);
+		this.loadingText = text;
+	}
 
+	cleanLoading() {
 		if (this.loadingText) {
-			c.removeChild(this.loadingText);
+			this.head.removeChild(this.loadingText);
 			this.loadingText.destroy();
 		}
-
-		this.style.fontSize = this.gridSize / 4;
-
-		const text = new Text('Loading ...', this.style);
-		c.addChild(text);
-		this.loadingText = text;
 	}
 }

@@ -22,6 +22,18 @@ type CmdRoomTick struct {
 	Dump  map[string]interface{}
 }
 
+// CmdJump  ...
+type CmdJump struct {
+	ID   int
+	Jump bool
+}
+
+// CmdRun  ...
+type CmdRun struct {
+	ID  int
+	Run float64
+}
+
 // NewRoom ...
 func NewRoom() int {
 	a := &CmdNewRoom{}
@@ -54,4 +66,22 @@ func Tick(room int) map[string]interface{} {
 	a.mutex.Lock()
 
 	return a.Dump
+}
+
+// Jump ...
+func Jump(player int, jump bool) {
+	a := &CmdJump{
+		ID:   player,
+		Jump: jump,
+	}
+	cmdCh <- a
+}
+
+// Run ...
+func Run(player int, run float64) {
+	a := &CmdRun{
+		ID:  player,
+		Run: run,
+	}
+	cmdCh <- a
 }

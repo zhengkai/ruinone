@@ -6,9 +6,6 @@ import { filter, map } from 'rxjs/operators';
 declare const WebAssembly: any;
 declare const Go: any;
 declare const goFibonacci: any;
-declare const goRoom: any;
-declare const goPlayer: any;
-declare const goTick: any;
 
 @Injectable({
 	providedIn: 'root'

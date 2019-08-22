@@ -11,6 +11,8 @@ func register() {
 	js.Global().Set(`goRoom`, js.FuncOf(goRoom))
 	js.Global().Set(`goPlayer`, js.FuncOf(goPlayer))
 	js.Global().Set(`goTick`, js.FuncOf(goTick))
+	js.Global().Set(`goJump`, js.FuncOf(goJump))
+	js.Global().Set(`goRun`, js.FuncOf(goRun))
 }
 
 func goFibonacci(this js.Value, args []js.Value) interface{} {
@@ -52,4 +54,32 @@ func goTick(this js.Value, args []js.Value) interface{} {
 
 	dump := room.Tick(roomID)
 	return dump
+}
+
+func goJump(this js.Value, args []js.Value) interface{} {
+
+	if len(args) < 2 {
+		return nil
+	}
+
+	playerID := args[0].Int()
+	jump := args[1].Bool()
+
+	go room.Jump(playerID, jump)
+	return nil
+}
+
+func goRun(this js.Value, args []js.Value) interface{} {
+
+	if len(args) < 2 {
+		return nil
+	}
+
+	playerID := args[0].Int()
+	run := args[1].Float()
+
+	go room.Run(playerID, run)
+
+	// go room.Jump(playerID)
+	return true
 }

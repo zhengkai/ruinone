@@ -1,6 +1,15 @@
 import { Graphics } from 'pixi.js';
 
+export interface PlayerDump {
+	id: number;
+	jumpCount: number;
+	x: number;
+	y: number;
+}
+
 export class Player {
+
+	dump: PlayerDump;
 
 	graphic: Graphics;
 
@@ -29,5 +38,22 @@ export class Player {
 			.drawRoundedRect(- w / 2, -h, w, h, 0.2 * w);
 
 		this.graphic = g;
+	}
+
+	setDump(a: PlayerDump) {
+		this.dump = a;
+		this.x = a.x;
+		this.y = a.y;
+	}
+
+	draw(gs: number, x: number, y: number) {
+		const g = this.graphic;
+		g.position.x = gs * (this.x - x);
+		g.position.y = - gs * (this.y - y);
+		// g.position.x = 10;
+		// g.position.y = 10;
+
+		const scale = gs / this.gridSize;
+		g.scale.set(scale, scale);
 	}
 }
