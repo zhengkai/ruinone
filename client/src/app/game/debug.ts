@@ -7,6 +7,8 @@ export class Debug {
 	head = new Container();
 	foot = new Container();
 
+	prevTickText: Text;
+
 	prevFPS = '';
 	prevFPSCount = 0;
 	prevFPSText: Text;
@@ -116,10 +118,28 @@ export class Debug {
 		f.position.y = s.height - 6;
 		f.zIndex = 100000;
 
+		this.drawTick();
 		this.drawSignature();
 		this.drawFPS();
 		this.drawSize();
 		this.drawPad();
+	}
+
+	drawTick() {
+
+		const s = 'Tick: ' + this.target.world.tick;
+
+		const c = this.head;
+
+		if (this.prevTickText) {
+			c.removeChild(this.prevTickText);
+			this.prevTickText.destroy();
+		}
+		const tick = new Text(s, this.style);
+		tick.anchor.x = 1;
+		tick.position.y = 32;
+		c.addChild(tick);
+		this.prevTickText = tick;
 	}
 
 	drawSize() {
@@ -139,19 +159,20 @@ export class Debug {
 		const s = 'Screen: ' + sc.width + 'x' + sc.height  + ', Grid: ' + so.gridSize;
 		const c = this.head;
 
-		if (this.prevFPSText) {
+		if (this.prevSizeText) {
 			c.removeChild(this.prevSizeText);
+			this.prevSizeText.destroy();
 		}
 		const size = new Text(s, this.style);
 		size.anchor.x = 1;
-		size.pivot.y = -12;
 		c.addChild(size);
 		this.prevSizeText = size;
 	}
 
 	drawSignature() {
 		if (this.prevSignature) {
-			return;
+			this.foot.removeChild(this.prevSignature);
+			this.prevSignature.destroy();
 		}
 		const sign = new Text('Ruin.One by Zheng Kai', this.style);
 		this.prevSignature = sign;
@@ -201,9 +222,11 @@ export class Debug {
 
 		if (this.prevFPSText) {
 			c.removeChild(this.prevFPSText);
+			this.prevFPSText.destroy();
 		}
 		const fps = new Text(s, this.style);
 		fps.anchor.x = 1;
+		fps.position.y = 16;
 		c.addChild(fps);
 		this.prevFPSText = fps;
 	}
@@ -214,7 +237,7 @@ export class Debug {
 		const os = gs * 0.3;
 
 		for (const a of this.gamePadButton) {
-			console.log(a);
+			// console.log(a);
 
 			if (!a.o) {
 				a.gridSize = os;

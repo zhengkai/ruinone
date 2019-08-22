@@ -1,7 +1,12 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
 import { Application } from 'pixi.js';
 import { GameService } from './game/game.service';
+import { WasmService } from './game/wasm.service';
 import { Input } from './game/input';
+
+declare const goRoom: any;
+declare const goPlayer: any;
+declare const goTick: any;
 
 @Component({
 	selector: 'app-root',
@@ -17,8 +22,14 @@ export class AppComponent {
 	constructor(
 		private el: ElementRef,
 		private game: GameService,
+		private wasm: WasmService,
 	) {
 		this.init();
+
+		(async () => {
+			await wasm.wait();
+			game.wasmInit();
+		})();
 	}
 
 	init() {

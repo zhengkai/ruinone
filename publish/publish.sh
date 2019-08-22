@@ -11,6 +11,6 @@ DIR=`readlink -f "$0"` && DIR=`dirname "$DIR"` && cd "$DIR" || exit 1
 
 	rsync --partial -vzrtopg -e ssh '/www/ruin/client/dist/prod/' 'freya:/www/site/ruin.one/www'
 
-	ssh freya 'cd /www/site/ruin.one/www && gzip -k *'
+	ssh freya 'cd /www/site/ruin.one/www && rm *.gz && gzip -k *' || :
 
 ) 200>"$DIR/lock-publish"

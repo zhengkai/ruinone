@@ -9,6 +9,8 @@ import { Debug } from './debug';
 })
 export class GameService {
 
+	wasmReady = false;
+
 	app: Application;
 
 	world: World;
@@ -19,8 +21,6 @@ export class GameService {
 
 	t: Text;
 
-	count = 0;
-
 	constructor() {
 	}
 
@@ -29,18 +29,29 @@ export class GameService {
 		if (!this.init) {
 			this.init = true;
 			this.doInit();
+			if (this.wasmReady) {
+				this.wasmInit();
+			}
 		}
 
-		this.count++;
-
-		this.world.run();
-
 		this.screen.run();
-
-		this.debug.run();
+		if (this.wasmReady) {
+			this.world.run();
+			this.debug.run();
+		}
 		// this.t.text('' + this.count);
 
 		// console.log('game tick', this.app, Math.PI / delta);
+	}
+
+	wasmInit() {
+		this.wasmReady = true;
+		if (!this.init) {
+			return;
+		}
+		console.log('wasmInit');
+		this.screen.wasmInit();
+		this.world.wasmInit();
 	}
 
 	doInit() {
@@ -48,6 +59,7 @@ export class GameService {
 		const a = this.app;
 
 		this.world = new World(a);
+		this.world.target = this;
 
 		this.screen = new Screen(a);
 
