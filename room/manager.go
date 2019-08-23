@@ -1,5 +1,9 @@
 package room
 
+import (
+	"time"
+)
+
 var (
 	roomMap   = make(map[int]*Room)
 	playerMap = make(map[int]*Player)
@@ -9,25 +13,42 @@ var (
 
 func (r *Room) manager() {
 
+	ticker := time.NewTicker(r.tickDuration)
+
+	var a interface{}
+	var t time.Time
+
 	for {
-		a := <-r.cmdCh
 
-		switch a.(type) {
+		select {
 
-		case *cmdNewPlayer:
-			r.mngNewPlayer(a.(*cmdNewPlayer))
+		case a = <-r.cmdCh:
 
-		case *cmdTick:
-			r.mngTick(a.(*cmdTick))
+			switch a.(type) {
 
-		case *cmdJump:
-			r.mngJump(a.(*cmdJump))
+			case *cmdNewPlayer:
+				r.mngNewPlayer(a.(*cmdNewPlayer))
 
-		case *cmdRun:
-			r.mngRun(a.(*cmdRun))
+			case *cmdDump:
+				r.mngDump(a.(*cmdDump))
 
-		default:
-			j.Log(`unknown cmd`, a)
+			case *cmdJump:
+				r.mngJump(a.(*cmdJump))
+
+			case *cmdRun:
+				r.mngRun(a.(*cmdRun))
+
+			case *cmdClose:
+				ticker.Stop()
+				return
+
+			default:
+				j.Log(`unknown cmd`, a)
+			}
+
+		case t = <-ticker.C:
+
+			r.tick(&t)
 		}
 	}
 }

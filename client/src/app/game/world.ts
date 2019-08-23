@@ -4,7 +4,7 @@ import { Player, PlayerDump } from './player';
 import { Input } from './input';
 
 declare const goPlayer: any;
-declare const goTick: any;
+declare const goDump: any;
 declare const goJump: any;
 declare const goRun: any;
 
@@ -46,7 +46,7 @@ export class World {
 		// this.tick++;
 
 		// console.log('tick start');
-		const dump = goTick();
+		const dump = goDump();
 		this.tick = dump.tick;
 
 		if (dump.tick % 200 === 1) {

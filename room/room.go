@@ -2,75 +2,66 @@ package room
 
 import (
 	"math/rand"
+	"time"
 )
 
 // Room ...
 type Room struct {
 	ID    int
-	Tick  int
-	PL    map[int]*Player
-	Rand  *rand.Rand
+	pl    map[int]*Player
+	rand  *rand.Rand
 	cmdCh chan interface{}
 	ai    int
 	me    *Player
+	fps   int
+
+	tickCount         int
+	tickTime          *time.Time
+	tickDuration      time.Duration
+	tickDurationFloat float64
 }
 
-func (r *Room) mngTick(a *cmdTick) {
+func (r *Room) mngDump(a *cmdDump) {
 
-	r.tick()
 	a.Dump = r.Dump()
 
 	a.mutex.Unlock()
 }
 
 func (r *Room) addPlayer(p *Player) {
-	r.PL[p.ID] = p
+	p.room = r
+	r.pl[p.ID] = p
 }
 
-func (r *Room) tick() {
-	r.Tick++
+func (r *Room) tick(t *time.Time) {
+	r.tickCount++
+	r.tickTime = t
 
-	for _, p := range r.PL {
-		r.tickPlayer(p)
-	}
-}
-
-func (r *Room) tickPlayer(p *Player) {
-
-	p.parseControl()
-
-	p.Y += p.Acceleration
-	p.Acceleration -= p.Fall
-
-	p.X += p.control.Run * 0.2
-
-	if p.X < 0 {
-		p.X = 0
-	} else if p.X > 16 {
-		p.X = 16
+	for _, p := range r.pl {
+		p.tick()
 	}
 
-	if p.Y < 0 {
-
-		p.Y = 0
-
-		p.JumpCount = 0
-		p.Acceleration = 0
-
-	} else if p.Y > 7 {
-		p.Y = 7
+	if r.me != nil {
+		r.me.parseControl()
 	}
 }
 
 // Dump ...
 func (r *Room) Dump() (a map[string]interface{}) {
 
+	duration := time.Now().Sub(*r.tickTime)
+	if duration > r.tickDuration {
+		duration = r.tickDuration
+	}
+
+	rate := float64(duration) / r.tickDurationFloat
+
 	a = make(map[string]interface{})
-	a[`tick`] = r.Tick
+	a[`tick`] = r.tickCount
 
 	pl := []interface{}{}
-	for _, p := range r.PL {
-		v, ok := p.Dump()
+	for _, p := range r.pl {
+		v, ok := p.Dump(rate)
 		if !ok {
 			continue
 		}

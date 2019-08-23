@@ -3,6 +3,7 @@ package room
 import (
 	"math/rand"
 	"sync/atomic"
+	"time"
 )
 
 var (
@@ -10,28 +11,41 @@ var (
 )
 
 // New ...
-func New(seed int64) (r *Room) {
+func New(seed int64, fps int) (r *Room) {
 
 	id := atomic.AddUint64(&ai, 1)
 
 	// t := time.Now()
 	// seed64 = int64(seed) + t.UnixNano()
 
-	r = &Room{
-		ID:    int(id),
-		PL:    make(map[int]*Player),
-		Rand:  rand.New(rand.NewSource(seed)),
-		cmdCh: make(chan interface{}),
-		ai:    1,
+	if fps < 1 {
+		fps = 1
+	} else if fps > 1000 {
+		fps = 1000
 	}
 
-	p := NewPlayer(r.ai)
+	t := time.Now()
+	duration := time.Second / time.Duration(fps)
+
+	r = &Room{
+		ID:                int(id),
+		pl:                make(map[int]*Player),
+		rand:              rand.New(rand.NewSource(seed)),
+		cmdCh:             make(chan interface{}, 10),
+		ai:                1,
+		fps:               fps,
+		tickTime:          &t,
+		tickDuration:      duration,
+		tickDurationFloat: float64(duration),
+	}
+
+	p := NewPlayer(r.ai, fps)
 	r.addPlayer(p)
 	r.me = p
 
 	go r.manager()
 
-	j.Log(`seed`, seed, r.Rand.Int63())
+	j.Log(`seed`, seed, r.rand.Int63())
 
 	j.Log(`mngNewRoom`, ai, r)
 

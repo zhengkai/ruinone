@@ -7,7 +7,7 @@ type cmdNewPlayer struct {
 	mutex sync.Mutex
 }
 
-type cmdTick struct {
+type cmdDump struct {
 	mutex sync.Mutex
 	Dump  map[string]interface{}
 }
@@ -18,6 +18,9 @@ type cmdJump struct {
 
 type cmdRun struct {
 	Run float64
+}
+
+type cmdClose struct {
 }
 
 // CmdNewPlayer ...
@@ -32,9 +35,9 @@ func (r *Room) CmdNewPlayer() int {
 	return a.ID
 }
 
-// CmdTick ...
-func (r *Room) CmdTick() map[string]interface{} {
-	a := &cmdTick{}
+// CmdDump ...
+func (r *Room) CmdDump() map[string]interface{} {
+	a := &cmdDump{}
 	a.mutex.Lock()
 	r.cmdCh <- a
 	a.mutex.Lock()

@@ -5,14 +5,15 @@ import (
 )
 
 func register() {
-	js.Global().Set(`goTick`, js.FuncOf(goTick))
+	js.Global().Set(`goDump`, js.FuncOf(goDump))
 	js.Global().Set(`goJump`, js.FuncOf(goJump))
 	js.Global().Set(`goRun`, js.FuncOf(goRun))
 }
 
-func goTick(this js.Value, args []js.Value) interface{} {
+func goDump(this js.Value, args []js.Value) interface{} {
 
-	dump := r.CmdTick()
+	dump := r.CmdDump()
+	// j.Log(`dump`, dump)
 	return dump
 }
 

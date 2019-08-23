@@ -1,18 +1,26 @@
 package room
 
+var (
+	jumpCircle = float64(15)
+)
+
 // Player ...
 type Player struct {
 	Physics
 	ID           int
 	JumpCount    int
 	JumpLimit    int
-	Acceleration float64
 	JumpPower    float64
+	Acceleration float64
 	Fall         float64
 	Speed        float64
 	control      *PlayerControl
+	room         *Room
 
-	dataDump *playerDump
+	tickJump int
+
+	dataDump     *playerDump
+	dataDumpPrev *playerDump
 }
 
 type playerDump struct {
@@ -31,7 +39,8 @@ func (r *Room) mngNewPlayer(a *cmdNewPlayer) {
 	r.ai++
 	a.ID = r.ai
 
-	p := NewPlayer(r.ai)
+	p := NewPlayer(r.ai, r.fps)
+	p.room = r
 
 	r.addPlayer(p)
 	if r.me == nil {
@@ -42,16 +51,21 @@ func (r *Room) mngNewPlayer(a *cmdNewPlayer) {
 }
 
 // NewPlayer ...
-func NewPlayer(id int) (p *Player) {
+func NewPlayer(id, fps int) (p *Player) {
+
+	rate := 60 / float64(fps)
+	// rate := float64(1)
 
 	p = &Player{
 		ID:        id,
 		JumpPower: 0.4,
-		Fall:      0.02,
+		Fall:      0.02 / rate,
 		JumpLimit: 2,
-		Speed:     0.1,
+		Speed:     0.2 * rate,
 		control:   &PlayerControl{},
-		dataDump:  &playerDump{x: -10000},
+
+		dataDump:     &playerDump{},
+		dataDumpPrev: &playerDump{x: -10000},
 	}
 
 	return
@@ -94,7 +108,7 @@ func (p *Player) Run(v float64) {
 		v = -1
 	}
 
-	p.control.Run = v
+	p.control.Run = v * p.Speed
 }
 
 func (p *Player) parseControl() {
@@ -105,33 +119,73 @@ func (p *Player) parseControl() {
 		c.Jump = false
 		if p.JumpCount < p.JumpLimit {
 			p.JumpCount++
-			p.Acceleration = p.JumpPower
+			p.tickJump = p.room.tickCount
 		}
 	}
 }
 
-// Dump ...
-func (p *Player) Dump() (a map[string]interface{}, ok bool) {
+func (p *Player) tick() {
 
-	v := playerDump{
-		x: p.X,
-		y: p.Y,
+	// j.Log(`p.Acceleration`, p.Acceleration)
+
+	d := p.calcTick(1)
+	p.X = d.x
+	p.Y = d.y
+
+	p.Acceleration -= p.Fall
+
+	if p.Y <= 0 {
+		p.JumpCount = 0
+		p.Acceleration = 0
 	}
+}
+
+func (p *Player) calcTick(rate float64) (d *playerDump) {
+
+	d = &playerDump{}
+
+	d.x = p.X + p.control.Run*rate
+
+	if p.tickJump > 0 {
+
+		tick := float64(p.room.tickCount-p.tickJump) + rate
+
+		d.y = p.Y + tick*rate
+	}
+
+	if d.x < 0 {
+		d.x = 0
+	} else if d.x > 16 {
+		d.x = 16
+	}
+
+	if d.y < 0 {
+		d.y = 0
+	} else if d.y > 7 {
+		d.y = 7
+	}
+
+	return
+}
+
+// Dump ...
+func (p *Player) Dump(rate float64) (a map[string]interface{}, ok bool) {
 
 	// j.Log(*p.dataDump == v, v, *p.dataDump)
 
-	if *p.dataDump == v {
+	d := p.calcTick(rate)
+
+	if *p.dataDumpPrev == *d {
 		return
 	}
 
 	ok = true
-
-	p.dataDump = &v
+	p.dataDumpPrev = p.dataDump
 
 	a = make(map[string]interface{})
 	a[`id`] = p.ID
-	a[`x`] = v.x
-	a[`y`] = v.y
+	a[`x`] = d.x
+	a[`y`] = d.y
 
 	return
 }
