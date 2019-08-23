@@ -1,50 +1,24 @@
 package room
 
-import "strconv"
+import (
+	"math/rand"
+)
 
 // Room ...
 type Room struct {
-	ID   int
-	Tick int
-	PL   map[int]*Player
+	ID    int
+	Tick  int
+	PL    map[int]*Player
+	Rand  *rand.Rand
+	cmdCh chan interface{}
+	ai    int
+	me    *Player
 }
 
-func mngNewRoom(a *CmdNewRoom) {
-	ai++
-	a.ID = ai
+func (r *Room) mngTick(a *cmdTick) {
 
-	r := &Room{
-		ID: ai,
-		PL: make(map[int]*Player),
-	}
-
-	j.Log(`mngNewRoom`, ai, r)
-
-	if room == nil {
-		room = r
-	}
-	roomMap[ai] = r
-
-	a.mutex.Unlock()
-}
-
-func mngRoomTick(a *CmdRoomTick) {
-	// j.Log(`tick start`)
-
-	if a.ID > 0 {
-		r, ok := roomMap[a.ID]
-		if !ok {
-			j.Log(`tick unknown room`, a.ID, a)
-			return
-		}
-		r.tick()
-		a.Dump = r.Dump()
-	} else {
-		room.tick()
-		a.Dump = room.Dump()
-	}
-
-	// j.Log(`tick dump`, a.Dump)
+	r.tick()
+	a.Dump = r.Dump()
 
 	a.mutex.Unlock()
 }
@@ -94,13 +68,16 @@ func (r *Room) Dump() (a map[string]interface{}) {
 	a = make(map[string]interface{})
 	a[`tick`] = r.Tick
 
-	pl := make(map[string]interface{})
-	a[`playerList`] = pl
-
-	for k, v := range r.PL {
-		id := strconv.Itoa(k)
-		pl[id] = v.Dump()
+	pl := []interface{}{}
+	for _, p := range r.PL {
+		v, ok := p.Dump()
+		if !ok {
+			continue
+		}
+		pl = append(pl, v)
 	}
+
+	a[`playerList`] = pl
 
 	return
 }

@@ -1,36 +1,30 @@
 package room
 
 var (
-	cmdCh     = make(chan interface{})
 	roomMap   = make(map[int]*Room)
 	playerMap = make(map[int]*Player)
 	room      *Room
 	player    *Player
-
-	ai = 0
 )
 
-func manager() {
+func (r *Room) manager() {
 
 	for {
-		a := <-cmdCh
+		a := <-r.cmdCh
 
 		switch a.(type) {
 
-		case *CmdNewRoom:
-			mngNewRoom(a.(*CmdNewRoom))
+		case *cmdNewPlayer:
+			r.mngNewPlayer(a.(*cmdNewPlayer))
 
-		case *CmdNewPlayer:
-			mngNewPlayer(a.(*CmdNewPlayer))
+		case *cmdTick:
+			r.mngTick(a.(*cmdTick))
 
-		case *CmdRoomTick:
-			mngRoomTick(a.(*CmdRoomTick))
+		case *cmdJump:
+			r.mngJump(a.(*cmdJump))
 
-		case *CmdJump:
-			mngJump(a.(*CmdJump))
-
-		case *CmdRun:
-			mngRun(a.(*CmdRun))
+		case *cmdRun:
+			r.mngRun(a.(*cmdRun))
 
 		default:
 			j.Log(`unknown cmd`, a)

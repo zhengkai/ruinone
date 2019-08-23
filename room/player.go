@@ -11,6 +11,13 @@ type Player struct {
 	Fall         float64
 	Speed        float64
 	control      *PlayerControl
+
+	dataDump *playerDump
+}
+
+type playerDump struct {
+	x float64
+	y float64
 }
 
 // PlayerControl  ...
@@ -20,60 +27,52 @@ type PlayerControl struct {
 	JumpPress bool
 }
 
-func mngNewPlayer(a *CmdNewPlayer) {
-	ai++
-	a.ID = ai
+func (r *Room) mngNewPlayer(a *cmdNewPlayer) {
+	r.ai++
+	a.ID = r.ai
 
-	p := &Player{
-		ID:        ai,
+	p := NewPlayer(r.ai)
+
+	r.addPlayer(p)
+	if r.me == nil {
+		r.me = p
+	}
+
+	a.mutex.Unlock()
+}
+
+// NewPlayer ...
+func NewPlayer(id int) (p *Player) {
+
+	p = &Player{
+		ID:        id,
 		JumpPower: 0.4,
 		Fall:      0.02,
 		JumpLimit: 2,
 		Speed:     0.1,
 		control:   &PlayerControl{},
+		dataDump:  &playerDump{x: -10000},
 	}
 
-	if a.Room > 0 {
-
-		r, ok := roomMap[a.Room]
-		if !ok {
-			j.Log(`new player, room not found`, a.Room, a)
-			return
-		}
-
-		r.addPlayer(p)
-	} else {
-		room.addPlayer(p)
-	}
-
-	j.Log(`mngNewPlayer`, ai, p)
-
-	if player == nil {
-		player = p
-	}
-	playerMap[ai] = p
-
-	a.mutex.Unlock()
+	return
 }
 
-func mngJump(a *CmdJump) {
+func (r *Room) mngJump(a *cmdJump) {
 
-	p, ok := playerMap[a.ID]
-	if !ok {
-		j.Log(`jump not found player`, a.ID, p)
+	if r.me == nil {
+		j.Log(`jump not found me`)
 		return
 	}
-	p.Jump(a.Jump)
+	r.me.Jump(a.Jump)
 }
 
-func mngRun(a *CmdRun) {
+func (r *Room) mngRun(a *cmdRun) {
 
-	p, ok := playerMap[a.ID]
-	if !ok {
-		j.Log(`jump not found player`, a.ID, p)
+	if r.me == nil {
+		j.Log(`run not found me`)
 		return
 	}
-	p.Run(a.Run)
+	r.me.Run(a.Run)
 }
 
 // Jump ...
@@ -112,13 +111,27 @@ func (p *Player) parseControl() {
 }
 
 // Dump ...
-func (p *Player) Dump() (a map[string]interface{}) {
-	a = make(map[string]interface{})
+func (p *Player) Dump() (a map[string]interface{}, ok bool) {
 
+	v := playerDump{
+		x: p.X,
+		y: p.Y,
+	}
+
+	// j.Log(*p.dataDump == v, v, *p.dataDump)
+
+	if *p.dataDump == v {
+		return
+	}
+
+	ok = true
+
+	p.dataDump = &v
+
+	a = make(map[string]interface{})
 	a[`id`] = p.ID
-	a[`x`] = p.X
-	a[`y`] = p.Y
-	a[`jumpCount`] = p.JumpCount
+	a[`x`] = v.x
+	a[`y`] = v.y
 
 	return
 }

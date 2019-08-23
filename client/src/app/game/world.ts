@@ -3,7 +3,6 @@ import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
 import { Input } from './input';
 
-declare const goRoom: any;
 declare const goPlayer: any;
 declare const goTick: any;
 declare const goJump: any;
@@ -22,54 +21,59 @@ export class World {
 	x = 8;
 	y = 3;
 
-	me: Player;
-
-	child = [];
+	child = new Map();
 
 	target: GameService;
-
-	roomID = 0;
-	playerID = 0;
 
 	jumpSent = false;
 	runSent = 0;
 
 	constructor(private app: Application) {
 		app.stage.addChild(this.c);
-
 	}
 
 	wasmInit() {
 		this.wasmReady = true;
-		this.roomID = goRoom();
-		this.playerID = goPlayer();
+
+		const seed = Math.floor(Math.random() * 999999999);
+
+		// this.playerID = goPlayer();
+
 		this.center();
-		this.me = this.newChild();
 	}
 
 	run() {
 		// this.tick++;
 
 		// console.log('tick start');
-		const dump = goTick(this.roomID);
+		const dump = goTick();
 		this.tick = dump.tick;
+
+		if (dump.tick % 200 === 1) {
+			// console.log('dump', dump);
+		}
+
+		for (const v of dump.playerList) {
+			let p = this.child.get(v.id);
+			if (!p) {
+				p = this.newChild();
+				this.child.set(v.id, p);
+			}
+			p.setDump(v);
+		}
+
+		/*
 		Object.entries(dump.playerList).map(([_, v]) => {
 			const d = v as PlayerDump;
 			if (d.id === this.playerID) {
 				this.me.setDump(d);
 			}
 		});
+		 */
 
 		// console.log('tick dump', dump);
 
 		this.center();
-
-		if (!this.child.length) {
-			const p = this.newChild();
-			if (!this.me) {
-				this.me = p;
-			}
-		}
 
 		this.control();
 
@@ -92,26 +96,26 @@ export class World {
 		const gs = this.target.screen.gridSize;
 
 		// console.log('child', this.child.length);
+		//
 
-		for (const c of this.child) {
-			c.draw(gs, this.x, this.y);
-		}
+		this.child.forEach((p) => {
+			p.draw(gs, this.x, this.y);
+		});
 	}
 
 	newChild(): Player {
 		const p = new Player(this.gridSize);
 		this.c.addChild(p.graphic);
-		this.child.push(p);
+		// this.child.push(p);
 		return p;
 	}
 
 	control() {
 		const c = Input.get();
-		const p = this.me;
 
 		if (this.jumpSent !== c.jump) {
 			this.jumpSent = c.jump;
-			goJump(this.playerID, this.jumpSent);
+			goJump(this.jumpSent);
 		}
 
 		let run = 0;
@@ -122,7 +126,7 @@ export class World {
 		}
 		if (this.runSent !== run) {
 			this.runSent = run;
-			goRun(this.playerID, this.runSent);
+			goRun(this.runSent);
 		}
 	}
 }
