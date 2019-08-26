@@ -46,11 +46,14 @@ export class World {
 		// this.tick++;
 
 		// console.log('tick start');
+
+		let ts = +Date.now();
 		const dump = goDump();
+		ts = +Date.now() - ts;
 		this.tick = dump.tick;
 
-		if (dump.tick % 200 === 1) {
-			// console.log('dump', dump);
+		if (ts > 5) {
+			console.warn('dump time > 5ms', ts);
 		}
 
 		for (const v of dump.playerList) {

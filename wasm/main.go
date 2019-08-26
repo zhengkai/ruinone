@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	r = room.New(123, 10)
+	r = room.New(123, 60)
 )
 
 func main() {

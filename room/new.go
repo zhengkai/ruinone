@@ -13,13 +13,15 @@ var (
 // New ...
 func New(seed int64, fps int) (r *Room) {
 
+	fps = fps / 2 * 2
+
 	id := atomic.AddUint64(&ai, 1)
 
 	// t := time.Now()
 	// seed64 = int64(seed) + t.UnixNano()
 
-	if fps < 1 {
-		fps = 1
+	if fps < 2 {
+		fps = 2
 	} else if fps > 1000 {
 		fps = 1000
 	}

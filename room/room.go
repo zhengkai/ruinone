@@ -34,12 +34,13 @@ func (r *Room) addPlayer(p *Player) {
 }
 
 func (r *Room) tick(t *time.Time) {
-	r.tickCount++
-	r.tickTime = t
 
 	for _, p := range r.pl {
 		p.tick()
 	}
+
+	r.tickCount++
+	r.tickTime = t
 
 	if r.me != nil {
 		r.me.parseControl()

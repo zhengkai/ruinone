@@ -1,22 +1,17 @@
 package room
 
-var (
-	jumpCircle = float64(15)
-)
-
 // Player ...
 type Player struct {
 	Physics
-	ID           int
-	JumpCount    int
-	JumpLimit    int
-	JumpPower    float64
-	Acceleration float64
-	Fall         float64
-	Speed        float64
-	control      *PlayerControl
-	room         *Room
+	ID        int
+	JumpCount int
+	JumpLimit int
+	JumpPower float64
+	Speed     float64
+	control   *PlayerControl
+	room      *Room
 
+	run      float64
 	tickJump int
 
 	dataDump     *playerDump
@@ -59,7 +54,6 @@ func NewPlayer(id, fps int) (p *Player) {
 	p = &Player{
 		ID:        id,
 		JumpPower: 0.4,
-		Fall:      0.02 / rate,
 		JumpLimit: 2,
 		Speed:     0.2 * rate,
 		control:   &PlayerControl{},
@@ -115,6 +109,8 @@ func (p *Player) parseControl() {
 
 	c := p.control
 
+	p.run = c.Run
+
 	if c.Jump {
 		c.Jump = false
 		if p.JumpCount < p.JumpLimit {
@@ -126,31 +122,46 @@ func (p *Player) parseControl() {
 
 func (p *Player) tick() {
 
-	// j.Log(`p.Acceleration`, p.Acceleration)
-
 	d := p.calcTick(1)
 	p.X = d.x
 	p.Y = d.y
 
-	p.Acceleration -= p.Fall
-
 	if p.Y <= 0 {
+		p.tickJump = 0
 		p.JumpCount = 0
-		p.Acceleration = 0
 	}
+}
+
+func (p *Player) getTickJump() (tick int, ok bool, stop bool) {
+
+	if p.tickJump == 0 {
+		return
+	}
+
+	ok = true
+	tick = p.room.tickCount - p.tickJump
+	return
 }
 
 func (p *Player) calcTick(rate float64) (d *playerDump) {
 
 	d = &playerDump{}
 
-	d.x = p.X + p.control.Run*rate
+	d.x = p.X + p.run*rate
 
-	if p.tickJump > 0 {
+	d.y = p.Y
 
-		tick := float64(p.room.tickCount-p.tickJump) + rate
-
-		d.y = p.Y + tick*rate
+	if rate > 0 {
+		tick, ok, _ := p.getTickJump()
+		if ok {
+			circle := float64(p.room.fps / 2)
+			tf := float64(tick)
+			total := jumpCalc(tf+rate, circle)
+			jump := jumpCalc(tf, circle)
+			h := total - jump
+			d.y += h
+			// j.Logf(`%3d %3.03f %3.03f %3.03f %3.03f %3.03f %3.03f`, tick, rate, total, jump, h, d.y, p.Y)
+		}
 	}
 
 	if d.x < 0 {
