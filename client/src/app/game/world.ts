@@ -2,10 +2,11 @@ import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
 import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
 import { Input } from './input';
+import { Screen } from './screen';
+import { Field } from './field';
 
-declare const goRoom: any;
-declare const goPlayer: any;
-declare const goTick: any;
+declare const goField: any;
+declare const goDump: any;
 declare const goJump: any;
 declare const goRun: any;
 
@@ -22,62 +23,80 @@ export class World {
 	x = 8;
 	y = 3;
 
-	me: Player;
+	child = new Map();
 
-	child = [];
-
-	target: GameService;
-
-	roomID = 0;
-	playerID = 0;
+	field = Array<Field>();
 
 	jumpSent = false;
 	runSent = 0;
 
-	constructor(private app: Application) {
+	constructor(private app: Application, private screen: Screen) {
 		app.stage.addChild(this.c);
-
 	}
 
 	wasmInit() {
 		this.wasmReady = true;
-		this.roomID = goRoom();
-		this.playerID = goPlayer();
+
+		const seed = Math.floor(Math.random() * 999999999);
+
+		// this.playerID = goPlayer();
+
+		goField().list.forEach((v) => {
+
+			const f = this.newField();
+			f.setDump(v);
+			f.draw(this.x, this.y);
+			this.field.push(f);
+
+			// console.log(f);
+		});
+
 		this.center();
-		this.me = this.newChild();
 	}
 
 	run() {
 		// this.tick++;
 
 		// console.log('tick start');
-		const dump = goTick(this.roomID);
+
+		let ts = +Date.now();
+		const dump = goDump();
+		ts = +Date.now() - ts;
 		this.tick = dump.tick;
+
+		if (ts > 5) {
+			// console.warn('dump time > 5ms', ts);
+		}
+
+		for (const v of dump.playerList) {
+			let p = this.child.get(v.id);
+			if (!p) {
+				p = this.newPlayer();
+				this.child.set(v.id, p);
+			}
+			p.setDump(v);
+		}
+
+		/*
 		Object.entries(dump.playerList).map(([_, v]) => {
 			const d = v as PlayerDump;
 			if (d.id === this.playerID) {
 				this.me.setDump(d);
 			}
 		});
+		 */
 
 		// console.log('tick dump', dump);
 
 		this.center();
 
-		if (!this.child.length) {
-			const p = this.newChild();
-			if (!this.me) {
-				this.me = p;
-			}
-		}
-
 		this.control();
 
-		this.loopChild();
+		this.loop();
 	}
 
 	center() {
-		const s = this.target.screen;
+		const s = this.screen;
 		const p = this.c.position;
 		p.x = s.centerW;
 		p.y = s.centerH;
@@ -87,31 +106,37 @@ export class World {
 		}
 	}
 
-	loopChild() {
+	loop() {
 
-		const gs = this.target.screen.gridSize;
+		const gs = this.screen.gridSize;
 
 		// console.log('child', this.child.length);
+		//
 
-		for (const c of this.child) {
-			c.draw(gs, this.x, this.y);
-		}
+		this.child.forEach((p) => {
+			p.draw(this.x, this.y);
+		});
 	}
 
-	newChild(): Player {
-		const p = new Player(this.gridSize);
+	newPlayer(): Player {
+		const p = new Player(this.screen);
 		this.c.addChild(p.graphic);
-		this.child.push(p);
+		// this.child.push(p);
 		return p;
+	}
+
+	newField(): Field {
+		const f = new Field(this.screen);
+		this.c.addChild(f.graphic);
+		return f;
 	}
 
 	control() {
 		const c = Input.get();
-		const p = this.me;
 
 		if (this.jumpSent !== c.jump) {
 			this.jumpSent = c.jump;
-			goJump(this.playerID, this.jumpSent);
+			goJump(this.jumpSent);
 		}
 
 		let run = 0;
@@ -122,7 +147,7 @@ export class World {
 		}
 		if (this.runSent !== run) {
 			this.runSent = run;
-			goRun(this.playerID, this.runSent);
+			goRun(this.runSent);
 		}
 	}
 }

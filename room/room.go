@@ -1,106 +1,75 @@
 package room
 
-import "strconv"
+import (
+	"math/rand"
+	"time"
+)
 
 // Room ...
 type Room struct {
-	ID   int
-	Tick int
-	PL   map[int]*Player
+	ID    int
+	pl    map[int]*Player
+	rand  *rand.Rand
+	cmdCh chan interface{}
+	ai    int
+	me    *Player
+	fps   int
+
+	tickCount         int
+	tickTime          *time.Time
+	tickDuration      time.Duration
+	tickDurationFloat float64
 }
 
-func mngNewRoom(a *CmdNewRoom) {
-	ai++
-	a.ID = ai
+func (r *Room) mngDump(a *cmdDump) {
 
-	r := &Room{
-		ID: ai,
-		PL: make(map[int]*Player),
-	}
-
-	j.Log(`mngNewRoom`, ai, r)
-
-	if room == nil {
-		room = r
-	}
-	roomMap[ai] = r
-
-	a.mutex.Unlock()
-}
-
-func mngRoomTick(a *CmdRoomTick) {
-	// j.Log(`tick start`)
-
-	if a.ID > 0 {
-		r, ok := roomMap[a.ID]
-		if !ok {
-			j.Log(`tick unknown room`, a.ID, a)
-			return
-		}
-		r.tick()
-		a.Dump = r.Dump()
-	} else {
-		room.tick()
-		a.Dump = room.Dump()
-	}
-
-	// j.Log(`tick dump`, a.Dump)
+	a.Dump = r.Dump()
 
 	a.mutex.Unlock()
 }
 
 func (r *Room) addPlayer(p *Player) {
-	r.PL[p.ID] = p
+	p.room = r
+	r.pl[p.ID] = p
 }
 
-func (r *Room) tick() {
-	r.Tick++
+func (r *Room) tick(t *time.Time) {
 
-	for _, p := range r.PL {
-		r.tickPlayer(p)
-	}
-}
-
-func (r *Room) tickPlayer(p *Player) {
-
-	p.parseControl()
-
-	p.Y += p.Acceleration
-	p.Acceleration -= p.Fall
-
-	p.X += p.control.Run * 0.2
-
-	if p.X < 0 {
-		p.X = 0
-	} else if p.X > 16 {
-		p.X = 16
+	for _, p := range r.pl {
+		p.tick()
 	}
 
-	if p.Y < 0 {
+	r.tickCount++
+	r.tickTime = t
 
-		p.Y = 0
-
-		p.JumpCount = 0
-		p.Acceleration = 0
-
-	} else if p.Y > 7 {
-		p.Y = 7
+	if r.me != nil {
+		r.me.parseControl()
 	}
 }
 
 // Dump ...
 func (r *Room) Dump() (a map[string]interface{}) {
 
-	a = make(map[string]interface{})
-	a[`tick`] = r.Tick
-
-	pl := make(map[string]interface{})
-	a[`playerList`] = pl
-
-	for k, v := range r.PL {
-		id := strconv.Itoa(k)
-		pl[id] = v.Dump()
+	duration := time.Now().Sub(*r.tickTime)
+	if duration > r.tickDuration {
+		duration = r.tickDuration
 	}
+
+	rate := float64(duration) / r.tickDurationFloat
+
+	a = make(map[string]interface{})
+	a[`tick`] = r.tickCount
+
+	pl := []interface{}{}
+	for _, p := range r.pl {
+		v, ok := p.Dump(rate)
+		if !ok {
+			continue
+		}
+		pl = append(pl, v)
+	}
+
+	a[`playerList`] = pl
 
 	return
 }

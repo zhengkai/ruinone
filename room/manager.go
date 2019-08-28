@@ -1,39 +1,54 @@
 package room
 
+import (
+	"time"
+)
+
 var (
-	cmdCh     = make(chan interface{})
 	roomMap   = make(map[int]*Room)
 	playerMap = make(map[int]*Player)
 	room      *Room
 	player    *Player
-
-	ai = 0
 )
 
-func manager() {
+func (r *Room) manager() {
+
+	ticker := time.NewTicker(r.tickDuration)
+
+	var a interface{}
+	var t time.Time
 
 	for {
-		a := <-cmdCh
 
-		switch a.(type) {
+		select {
 
-		case *CmdNewRoom:
-			mngNewRoom(a.(*CmdNewRoom))
+		case a = <-r.cmdCh:
 
-		case *CmdNewPlayer:
-			mngNewPlayer(a.(*CmdNewPlayer))
+			switch a.(type) {
 
-		case *CmdRoomTick:
-			mngRoomTick(a.(*CmdRoomTick))
+			case *cmdNewPlayer:
+				r.mngNewPlayer(a.(*cmdNewPlayer))
 
-		case *CmdJump:
-			mngJump(a.(*CmdJump))
+			case *cmdDump:
+				r.mngDump(a.(*cmdDump))
 
-		case *CmdRun:
-			mngRun(a.(*CmdRun))
+			case *cmdJump:
+				r.mngJump(a.(*cmdJump))
 
-		default:
-			j.Log(`unknown cmd`, a)
+			case *cmdRun:
+				r.mngRun(a.(*cmdRun))
+
+			case *cmdClose:
+				ticker.Stop()
+				return
+
+			default:
+				j.Log(`unknown cmd`, a)
+			}
+
+		case t = <-ticker.C:
+
+			r.tick(&t)
 		}
 	}
 }

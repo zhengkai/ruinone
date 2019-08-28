@@ -5,6 +5,7 @@ export class Screen {
 	wasmReady = false;
 
 	head = new Container();
+	center = new Container();
 
 	prevW = 1;
 	prevH = 1;
@@ -16,6 +17,8 @@ export class Screen {
 
 	loadingText: Text;
 
+	demo = false;
+
 	style = new TextStyle({
 		fontFamily: 'Roboto Mono',
 		fontSize: 24,
@@ -24,14 +27,43 @@ export class Screen {
 	});
 
 	constructor(private app: Application) {
+		this.head.zIndex = 100000;
+		this.center.zIndex = 100000;
 		app.stage.addChild(this.head);
+		app.stage.addChild(this.center);
 	}
 
 	run() {
 		this.calc();
 
+		if (!this.demo) {
+			this.demo = true;
+			// this.doDemo();
+		}
+
 		if (!this.wasmReady) {
 			this.loading();
+		}
+	}
+
+	doDemo() {
+
+		const c = this.center;
+
+		const height = 100;
+		const width = 100;
+
+		const frame = 10;
+
+		for (let x = -1; x <= 1; x += 1 / width) {
+
+			const y = 1 - x * x;
+
+			const g = (new Graphics())
+				.beginFill(0xff0000)
+				.drawRect((x + 1) * width, y * height, 1, 1);
+			// console.log((x + 1) * width, y * height);
+			c.addChild(g);
 		}
 	}
 
@@ -54,10 +86,11 @@ export class Screen {
 		this.centerW = Math.round(w / 2);
 		this.centerH = Math.round(h / 2);
 
-		const head = this.head;
-		head.position.x = this.gridSize;
-		head.position.y = this.gridSize / 2;
-		head.zIndex = 100000;
+		this.head.position.x = this.gridSize;
+		this.head.position.y = this.gridSize / 2;
+
+		this.center.position.x = this.centerW;
+		this.center.position.y = this.centerH;
 		// console.log('Screen.calc', this.gridSize, this);
 	}
 

@@ -1,84 +1,50 @@
 package main
 
 import (
-	"syscall/js"
-
 	"room"
+	"syscall/js"
 )
 
 func register() {
-	js.Global().Set(`goFibonacci`, js.FuncOf(goFibonacci))
-	js.Global().Set(`goRoom`, js.FuncOf(goRoom))
-	js.Global().Set(`goPlayer`, js.FuncOf(goPlayer))
-	js.Global().Set(`goTick`, js.FuncOf(goTick))
+	js.Global().Set(`goField`, js.FuncOf(goField))
+	js.Global().Set(`goDump`, js.FuncOf(goDump))
 	js.Global().Set(`goJump`, js.FuncOf(goJump))
 	js.Global().Set(`goRun`, js.FuncOf(goRun))
 }
 
-func goFibonacci(this js.Value, args []js.Value) interface{} {
-	i := fibonacci(args[0].Int())
-	// fmt.Println(`goFibonacci`, i)
+func goField(this js.Value, args []js.Value) interface{} {
 
-	// time.Sleep(time.Second / 10)
-
-	p := make(map[string]interface{})
-	p[`name`] = `pname`
-	p[`X`] = i
-	p[`Y`] = 0.01
-
-	return p
+	return room.FieldDump
 }
 
-func goRoom(this js.Value, args []js.Value) interface{} {
-	id := room.NewRoom()
-	return id
-}
+func goDump(this js.Value, args []js.Value) interface{} {
 
-func goPlayer(this js.Value, args []js.Value) interface{} {
-
-	roomID := 0
-	if len(args) > 0 {
-		roomID = args[0].Int()
-	}
-
-	id := room.NewPlayer(roomID)
-	return id
-}
-
-func goTick(this js.Value, args []js.Value) interface{} {
-
-	roomID := 0
-	if len(args) > 0 {
-		roomID = args[0].Int()
-	}
-
-	dump := room.Tick(roomID)
+	dump := r.CmdDump()
+	// j.Log(`dump`, dump)
 	return dump
 }
 
 func goJump(this js.Value, args []js.Value) interface{} {
 
-	if len(args) < 2 {
+	if len(args) < 1 {
 		return nil
 	}
 
-	playerID := args[0].Int()
-	jump := args[1].Bool()
+	jump := args[0].Bool()
 
-	go room.Jump(playerID, jump)
+	go r.CmdJump(jump)
 	return nil
 }
 
 func goRun(this js.Value, args []js.Value) interface{} {
 
-	if len(args) < 2 {
+	if len(args) < 1 {
 		return nil
 	}
 
-	playerID := args[0].Int()
-	run := args[1].Float()
+	run := args[0].Float()
 
-	go room.Run(playerID, run)
+	go r.CmdRun(run)
 
 	// go room.Jump(playerID)
 	return true

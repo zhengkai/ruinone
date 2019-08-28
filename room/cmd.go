@@ -2,86 +2,61 @@ package room
 
 import "sync"
 
-// CmdNewRoom ...
-type CmdNewRoom struct {
+type cmdNewPlayer struct {
 	ID    int
 	mutex sync.Mutex
 }
 
-// CmdNewPlayer ...
-type CmdNewPlayer struct {
-	ID    int
-	Room  int
-	mutex sync.Mutex
-}
-
-// CmdRoomTick ...
-type CmdRoomTick struct {
-	ID    int
+type cmdDump struct {
 	mutex sync.Mutex
 	Dump  map[string]interface{}
 }
 
-// CmdJump  ...
-type CmdJump struct {
-	ID   int
+type cmdJump struct {
 	Jump bool
 }
 
-// CmdRun  ...
-type CmdRun struct {
-	ID  int
+type cmdRun struct {
 	Run float64
 }
 
-// NewRoom ...
-func NewRoom() int {
-	a := &CmdNewRoom{}
+type cmdClose struct {
+}
+
+// CmdNewPlayer ...
+func (r *Room) CmdNewPlayer() int {
+	a := &cmdNewPlayer{}
 	a.mutex.Lock()
-	cmdCh <- a
+	r.cmdCh <- a
 	a.mutex.Lock()
+
+	j.Log(`new player`, a.ID)
 
 	return a.ID
 }
 
-// NewPlayer ...
-func NewPlayer(room int) int {
-	a := &CmdNewPlayer{
-		Room: room,
-	}
+// CmdDump ...
+func (r *Room) CmdDump() map[string]interface{} {
+	a := &cmdDump{}
 	a.mutex.Lock()
-	cmdCh <- a
-	a.mutex.Lock()
-
-	return a.ID
-}
-
-// Tick ...
-func Tick(room int) map[string]interface{} {
-	a := &CmdRoomTick{
-		ID: room,
-	}
-	a.mutex.Lock()
-	cmdCh <- a
+	r.cmdCh <- a
 	a.mutex.Lock()
 
 	return a.Dump
 }
 
-// Jump ...
-func Jump(player int, jump bool) {
-	a := &CmdJump{
-		ID:   player,
+// CmdJump ...
+func (r *Room) CmdJump(jump bool) {
+	a := &cmdJump{
 		Jump: jump,
 	}
-	cmdCh <- a
+	r.cmdCh <- a
 }
 
-// Run ...
-func Run(player int, run float64) {
-	a := &CmdRun{
-		ID:  player,
+// CmdRun ...
+func (r *Room) CmdRun(run float64) {
+	a := &cmdRun{
 		Run: run,
 	}
-	cmdCh <- a
+	r.cmdCh <- a
 }
