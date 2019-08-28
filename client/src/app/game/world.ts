@@ -2,8 +2,10 @@ import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
 import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
 import { Input } from './input';
+import { Screen } from './screen';
+import { Field } from './field';
 
-declare const goPlayer: any;
+declare const goField: any;
 declare const goDump: any;
 declare const goJump: any;
 declare const goRun: any;
@@ -23,12 +25,12 @@ export class World {
 
 	child = new Map();
 
-	target: GameService;
+	field = Array<Field>();
 
 	jumpSent = false;
 	runSent = 0;
 
-	constructor(private app: Application) {
+	constructor(private app: Application, private screen: Screen) {
 		app.stage.addChild(this.c);
 	}
 
@@ -38,6 +40,16 @@ export class World {
 		const seed = Math.floor(Math.random() * 999999999);
 
 		// this.playerID = goPlayer();
+
+		goField().list.forEach((v) => {
+
+			const f = this.newField();
+			f.setDump(v);
+			f.draw(this.x, this.y);
+			this.field.push(f);
+
+			// console.log(f);
+		});
 
 		this.center();
 	}
@@ -53,13 +65,13 @@ export class World {
 		this.tick = dump.tick;
 
 		if (ts > 5) {
-			console.warn('dump time > 5ms', ts);
+			// console.warn('dump time > 5ms', ts);
 		}
 
 		for (const v of dump.playerList) {
 			let p = this.child.get(v.id);
 			if (!p) {
-				p = this.newChild();
+				p = this.newPlayer();
 				this.child.set(v.id, p);
 			}
 			p.setDump(v);
@@ -80,11 +92,11 @@ export class World {
 
 		this.control();
 
-		this.loopChild();
+		this.loop();
 	}
 
 	center() {
-		const s = this.target.screen;
+		const s = this.screen;
 		const p = this.c.position;
 		p.x = s.centerW;
 		p.y = s.centerH;
@@ -94,23 +106,29 @@ export class World {
 		}
 	}
 
-	loopChild() {
+	loop() {
 
-		const gs = this.target.screen.gridSize;
+		const gs = this.screen.gridSize;
 
 		// console.log('child', this.child.length);
 		//
 
 		this.child.forEach((p) => {
-			p.draw(gs, this.x, this.y);
+			p.draw(this.x, this.y);
 		});
 	}
 
-	newChild(): Player {
-		const p = new Player(this.gridSize);
+	newPlayer(): Player {
+		const p = new Player(this.screen);
 		this.c.addChild(p.graphic);
 		// this.child.push(p);
 		return p;
+	}
+
+	newField(): Field {
+		const f = new Field(this.screen);
+		this.c.addChild(f.graphic);
+		return f;
 	}
 
 	control() {

@@ -1,16 +1,15 @@
 import { Graphics } from 'pixi.js';
 import { Screen } from './screen';
 
-export interface PlayerDump {
+export interface FieldDump {
 	id: number;
-	jumpCount: number;
 	x: number;
 	y: number;
 }
 
-export class Player {
+export class Field {
 
-	dump: PlayerDump;
+	dump: FieldDump;
 	graphic: Graphics;
 
 	x = 0;
@@ -20,17 +19,17 @@ export class Player {
 
 		this.x = Math.random() * 5 + 3;
 
-		const w = screen.gridSize * 0.7;
-		const h = screen.gridSize * 0.9;
+		const w = screen.gridSize;
+		const h = screen.gridSize;
 
 		const g = (new Graphics())
-			.beginFill(0xddeeff)
-			.drawRoundedRect(- w / 2, -h, w, h, 0.2 * w);
+			.beginFill(0x99aacc)
+			.drawRect(- w / 2, -h, w, h);
 
 		this.graphic = g;
 	}
 
-	setDump(a: PlayerDump) {
+	setDump(a: FieldDump) {
 		this.dump = a;
 		this.x = a.x;
 		this.y = a.y;

@@ -1,13 +1,20 @@
 package main
 
 import (
+	"room"
 	"syscall/js"
 )
 
 func register() {
+	js.Global().Set(`goField`, js.FuncOf(goField))
 	js.Global().Set(`goDump`, js.FuncOf(goDump))
 	js.Global().Set(`goJump`, js.FuncOf(goJump))
 	js.Global().Set(`goRun`, js.FuncOf(goRun))
+}
+
+func goField(this js.Value, args []js.Value) interface{} {
+
+	return room.FieldDump
 }
 
 func goDump(this js.Value, args []js.Value) interface{} {

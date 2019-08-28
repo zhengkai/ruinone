@@ -58,10 +58,9 @@ export class GameService {
 
 		const a = this.app;
 
-		this.world = new World(a);
-		this.world.target = this;
-
 		this.screen = new Screen(a);
+
+		this.world = new World(a, this.screen);
 
 		this.debug = new Debug(a);
 		this.debug.target = this;
