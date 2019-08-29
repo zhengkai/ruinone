@@ -3,6 +3,7 @@ import { Application, Graphics, Text } from 'pixi.js';
 import { World } from './world';
 import { Screen } from './screen';
 import { Debug } from './debug';
+import { Menu } from './menu';
 
 @Injectable({
 	providedIn: 'root'
@@ -16,6 +17,7 @@ export class GameService {
 	world: World;
 	screen: Screen;
 	debug: Debug;
+	menu: Menu;
 
 	init = false;
 
@@ -38,10 +40,8 @@ export class GameService {
 		if (this.wasmReady) {
 			this.world.run();
 			this.debug.run();
+			this.menu.run();
 		}
-		// this.t.text('' + this.count);
-
-		// console.log('game tick', this.app, Math.PI / delta);
 	}
 
 	wasmInit() {
@@ -64,6 +64,9 @@ export class GameService {
 
 		this.debug = new Debug(a);
 		this.debug.target = this;
+
+		this.menu = new Menu();
+		this.menu.init(this);
 
 		console.log('game init', a);
 	}

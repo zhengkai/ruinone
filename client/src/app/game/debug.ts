@@ -7,7 +7,7 @@ export class Debug {
 	head = new Container();
 	foot = new Container();
 
-	prevTickText: Text;
+	tickText: Text;
 
 	prevFPS = '';
 	prevFPSCount = 0;
@@ -15,9 +15,9 @@ export class Debug {
 
 	prevSizeW = 0;
 	prevSizeH = 0;
-	prevSizeText: Text;
+	sizeText: Text;
 
-	prevSignature: Text;
+	signatureText: Text;
 
 	target: GameService;
 
@@ -129,17 +129,16 @@ export class Debug {
 
 		const s = 'Tick: ' + this.target.world.tick;
 
-		const c = this.head;
-
-		if (this.prevTickText) {
-			c.removeChild(this.prevTickText);
-			this.prevTickText.destroy();
+		if (this.tickText) {
+			this.tickText.text = s;
+			return;
 		}
+
 		const tick = new Text(s, this.style);
 		tick.anchor.x = 1;
 		tick.position.y = 32;
-		c.addChild(tick);
-		this.prevTickText = tick;
+		this.head.addChild(tick);
+		this.tickText = tick;
 	}
 
 	drawSize() {
@@ -157,27 +156,25 @@ export class Debug {
 		this.drawScreenReference();
 
 		const s = 'Screen: ' + sc.width + 'x' + sc.height  + ', Grid: ' + so.gridSize;
-		const c = this.head;
 
-		if (this.prevSizeText) {
-			c.removeChild(this.prevSizeText);
-			this.prevSizeText.destroy();
+		if (this.sizeText) {
+			this.sizeText.text = s;
+			return;
 		}
 		const size = new Text(s, this.style);
 		size.anchor.x = 1;
-		c.addChild(size);
-		this.prevSizeText = size;
+		this.head.addChild(size);
+		this.sizeText = size;
 	}
 
 	drawSignature() {
-		if (this.prevSignature) {
-			this.foot.removeChild(this.prevSignature);
-			this.prevSignature.destroy();
+		if (this.signatureText) {
+			return;
 		}
 		const sign = new Text('Ruin.One by Zheng Kai', this.style);
-		this.prevSignature = sign;
 		sign.anchor.x = 1;
 		sign.anchor.y = 1;
+		this.signatureText = sign;
 		this.foot.addChild(sign);
 	}
 
@@ -218,16 +215,14 @@ export class Debug {
 		}
 		this.prevFPS = s;
 
-		const c = this.head;
-
 		if (this.prevFPSText) {
-			c.removeChild(this.prevFPSText);
-			this.prevFPSText.destroy();
+			this.prevFPSText.text = s;
+			return;
 		}
 		const fps = new Text(s, this.style);
 		fps.anchor.x = 1;
 		fps.position.y = 16;
-		c.addChild(fps);
+		this.head.addChild(fps);
 		this.prevFPSText = fps;
 	}
 

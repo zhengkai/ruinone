@@ -1,4 +1,4 @@
-import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
+import { Application, Container } from 'pixi.js';
 import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
 import { Input } from './input';
@@ -19,6 +19,7 @@ export class World {
 	tick = 0;
 
 	gridSize = 0;
+	gridSizeChange = false;
 
 	x = 8;
 	y = 3;
@@ -39,16 +40,11 @@ export class World {
 
 		const seed = Math.floor(Math.random() * 999999999);
 
-		// this.playerID = goPlayer();
-
 		goField().list.forEach((v) => {
-
 			const f = this.newField();
 			f.setDump(v);
 			f.draw(this.x, this.y);
 			this.field.push(f);
-
-			// console.log(f);
 		});
 
 		this.center();
@@ -101,8 +97,9 @@ export class World {
 		p.x = s.centerW;
 		p.y = s.centerH;
 
-		if (!this.gridSize) {
+		if (this.gridSize !== s.gridSize) {
 			this.gridSize = s.gridSize;
+			this.gridSizeChange = true;
 		}
 	}
 
@@ -110,12 +107,16 @@ export class World {
 
 		const gs = this.screen.gridSize;
 
-		// console.log('child', this.child.length);
-		//
-
 		this.child.forEach((p) => {
 			p.draw(this.x, this.y);
 		});
+
+		if (this.gridSizeChange) {
+			this.gridSizeChange = false;
+			for (const f of this.field) {
+				f.draw(this.x, this.y);
+			}
+		}
 	}
 
 	newPlayer(): Player {

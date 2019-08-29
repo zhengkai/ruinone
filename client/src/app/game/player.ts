@@ -13,6 +13,8 @@ export class Player {
 	dump: PlayerDump;
 	graphic: Graphics;
 
+	gridSize = 10;
+
 	x = 0;
 	y = 0;
 
@@ -20,8 +22,12 @@ export class Player {
 
 		this.x = Math.random() * 5 + 3;
 
-		const w = screen.gridSize * 0.7;
-		const h = screen.gridSize * 0.9;
+		const gs = screen.gridSize;
+
+		this.gridSize = gs;
+
+		const w = gs * 0.7;
+		const h = gs * 0.9;
 
 		const g = (new Graphics())
 			.beginFill(0xddeeff)
@@ -43,10 +49,8 @@ export class Player {
 		const g = this.graphic;
 		g.position.x = gs * (this.x - x);
 		g.position.y = - gs * (this.y - y);
-		// g.position.x = 10;
-		// g.position.y = 10;
 
-		// const scale = gs / this.screen.gridSize;
-		g.scale.set(1, 1);
+		const scale = gs / this.gridSize;
+		g.scale.set(scale, scale);
 	}
 }

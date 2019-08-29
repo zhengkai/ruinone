@@ -13,7 +13,7 @@ export class Screen {
 	centerW = 1;
 	centerH = 1;
 
-	gridSize = 1;
+	gridSize = 16;
 
 	loadingText: Text;
 
@@ -103,6 +103,7 @@ export class Screen {
 		this.cleanLoading();
 		this.style.fontSize = this.gridSize / 4;
 		const text = new Text('Loading ...', this.style);
+
 		this.head.addChild(text);
 		this.loadingText = text;
 	}
