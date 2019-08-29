@@ -35,9 +35,7 @@ export class World {
 		app.stage.addChild(this.c);
 	}
 
-	wasmInit() {
-		this.wasmReady = true;
-
+	init() {
 		const seed = Math.floor(Math.random() * 999999999);
 
 		goField().list.forEach((v) => {

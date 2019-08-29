@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-// import { Go } from './go-wasm';
 
 declare const WebAssembly: any;
 declare const Go: any;
@@ -18,28 +17,20 @@ export class WasmService {
 
 	ready: boolean;
 
+	wait: any;
+
 	constructor() {
-		this.instantiateWasm('/assets/main.wasm');
-	}
-
-	async wait() {
-		if (this.ready) {
-			return;
-		}
-
-		const waitForCallback = new Promise((resolve, reject) => {
+		this.wait = new Promise((resolve, reject) => {
 			this.ev.addEventListener('initialized', (event) => {
 				resolve();
 			});
+			this.instantiateWasm('/assets/main.wasm');
 		});
-
-		return waitForCallback;
 	}
 
 	private async instantiateWasm(url: string) {
 		const wasmFile = await fetch(url);
 		const source = await wasmFile.arrayBuffer();
-
 		const go = new Go();
 		const result = await WebAssembly.instantiate(source, go.importObject);
 

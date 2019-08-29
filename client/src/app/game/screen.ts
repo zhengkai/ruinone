@@ -19,31 +19,27 @@ export class Screen {
 
 	demo = false;
 
-	style = new TextStyle({
-		fontFamily: 'Roboto Mono',
-		fontSize: 24,
-		fill: 0xeeeeee,
-		align: 'left',
-	});
+	style = new TextStyle();
 
 	constructor(private app: Application) {
 		this.head.zIndex = 100000;
 		this.center.zIndex = 100000;
 		app.stage.addChild(this.head);
 		app.stage.addChild(this.center);
+
+		this.calc();
+		this.loading();
 	}
 
 	run() {
 		this.calc();
 
+		/*
 		if (!this.demo) {
 			this.demo = true;
-			// this.doDemo();
+			this.doDemo();
 		}
-
-		if (!this.wasmReady) {
-			this.loading();
-		}
+		 */
 	}
 
 	doDemo() {
@@ -94,15 +90,23 @@ export class Screen {
 		// console.log('Screen.calc', this.gridSize, this);
 	}
 
-	wasmInit() {
-		this.wasmReady = true;
+	init() {
 		this.cleanLoading();
 	}
 
 	loading() {
+
+		const size = Math.max(16, Math.round(this.gridSize / 3));
+
 		this.cleanLoading();
-		this.style.fontSize = this.gridSize / 4;
-		const text = new Text('Loading ...', this.style);
+		const text = new Text('Loading ...', {
+			fontFamily: '"Times New Roman", Times, serif',
+			fontSize: size,
+			fontWeight: 'bold',
+			fill: 0xeeeeee,
+		});
+		text.position.x = size * 2;
+		text.position.y = size;
 
 		this.head.addChild(text);
 		this.loadingText = text;
@@ -112,6 +116,7 @@ export class Screen {
 		if (this.loadingText) {
 			this.head.removeChild(this.loadingText);
 			this.loadingText.destroy();
+			this.loadingText = null;
 		}
 	}
 }

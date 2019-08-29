@@ -10,8 +10,6 @@ import { Menu } from './menu';
 })
 export class GameService {
 
-	wasmReady = false;
-
 	app: Application;
 
 	world: World;
@@ -19,46 +17,24 @@ export class GameService {
 	debug: Debug;
 	menu: Menu;
 
-	init = false;
-
-	t: Text;
-
 	constructor() {
+		// console.log('abc', a);
 	}
 
 	tick(delta: number) {
-
-		if (!this.init) {
-			this.init = true;
-			this.doInit();
-			if (this.wasmReady) {
-				this.wasmInit();
-			}
-		}
-
 		this.screen.run();
-		if (this.wasmReady) {
-			this.world.run();
-			this.debug.run();
-			this.menu.run();
-		}
+		this.world.run();
+		this.debug.run();
+		this.menu.run();
 	}
 
-	wasmInit() {
-		this.wasmReady = true;
-		if (!this.init) {
-			return;
-		}
-		console.log('wasmInit');
-		this.screen.wasmInit();
-		this.world.wasmInit();
+	setApp(app: Application) {
+		this.app = app;
+		this.screen = new Screen(app);
 	}
 
-	doInit() {
-
+	init() {
 		const a = this.app;
-
-		this.screen = new Screen(a);
 
 		this.world = new World(a, this.screen);
 
@@ -67,6 +43,9 @@ export class GameService {
 
 		this.menu = new Menu();
 		this.menu.init(this);
+
+		this.screen.init();
+		this.world.init();
 
 		console.log('game init', a);
 	}
