@@ -67,6 +67,13 @@ export class AppComponent {
 		this.app = app;
 		this.game.setApp(app);
 		console.log('app init');
+
+		const ver = '1';
+		const v = localStorage.getItem('ver');
+		if (v !== ver) {
+			localStorage.clear();
+			localStorage.setItem('ver', ver);
+		}
 	}
 
 	@HostListener('click', ['$event'])

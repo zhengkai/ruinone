@@ -28,6 +28,12 @@ export class World {
 
 	child = new Map();
 
+	pos = {
+		x: 0,
+		y: 0,
+	};
+	posRefresh = false;
+
 	field = Array<Field>();
 
 	jumpSent = false;
@@ -101,6 +107,10 @@ export class World {
 		if (!this.c.visible) {
 			return;
 		}
+		this.posRefresh = this.game.screen.resize;
+		if (this.posRefresh) {
+			this.center();
+		}
 
 		let ts = +Date.now();
 		const dump = goDump();
@@ -117,21 +127,11 @@ export class World {
 				p = this.newPlayer();
 				this.child.set(v.id, p);
 			}
+
+			this.setPos(v.x, v.y);
+
 			p.setDump(v);
 		}
-
-		/*
-		Object.entries(dump.playerList).map(([_, v]) => {
-			const d = v as PlayerDump;
-			if (d.id === this.playerID) {
-				this.me.setDump(d);
-			}
-		});
-		 */
-
-		// console.log('tick dump', dump);
-
-		this.center();
 
 		this.control();
 
@@ -144,10 +144,21 @@ export class World {
 		p.x = s.centerW;
 		p.y = s.centerH;
 
-		if (this.gridSize !== s.gridSize) {
-			this.gridSize = s.gridSize;
-			this.gridSizeChange = true;
+		this.gridSize = s.gridSize;
+	}
+
+	setPos(x: number, y: number) {
+
+		x = Math.max(6, x);
+		y = Math.max(3, y);
+
+		if (this.x === x && this.y === y) {
+			return;
 		}
+
+		this.posRefresh = true;
+		this.x = x;
+		this.y = y;
 	}
 
 	loop() {
@@ -158,8 +169,7 @@ export class World {
 			p.draw(this.x, this.y);
 		});
 
-		if (this.gridSizeChange) {
-			this.gridSizeChange = false;
+		if (this.posRefresh) {
 			for (const f of this.field) {
 				f.draw(this.x, this.y);
 			}

@@ -17,6 +17,9 @@ type Room struct {
 
 	field *fieldMap
 
+	W float64
+	H float64
+
 	pause bool
 
 	tickCount         int
@@ -38,6 +41,7 @@ func (r *Room) mngSetMap(a *cmdSetMap) {
 
 	var list []*field
 	id := 0
+
 	for i, s := range a.Map {
 
 		if i == 0 {
@@ -66,6 +70,9 @@ func (r *Room) mngSetMap(a *cmdSetMap) {
 
 		list = append(list, f)
 	}
+
+	r.H = 16
+	r.W = 30
 
 	r.field = &fieldMap{
 		list: list,

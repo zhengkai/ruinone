@@ -242,20 +242,25 @@ func (p *Player) calcTick(rate float64) (phy *Physics, overlap *phyOver) {
 		overlap = motion[1].overlap
 	}
 
+	w := p.room.W
+	h := p.room.H
+
 	if phy.X < 0 {
 		overlap.w = true
 		phy.X = 0
-	} else if phy.X > 16 {
+	} else if phy.X > w {
+		// j.Log(`x`, phy.X, w)
 		overlap.e = true
-		phy.X = 16
+		phy.X = w
 	}
 
 	if phy.Y < 0 {
 		overlap.s = true
 		phy.Y = 0
-	} else if phy.Y > 7 {
+	} else if phy.Y > h {
+		// j.Log(`y`, phy.Y, h)
 		overlap.n = true
-		phy.Y = 7
+		phy.Y = h
 	}
 
 	return
