@@ -1,70 +1,71 @@
 import { Injectable } from '@angular/core';
 import { Application, Graphics, Text } from 'pixi.js';
 import { World } from './world';
+import { Editor } from './editor';
 import { Screen } from './screen';
 import { Debug } from './debug';
+import { Menu } from './menu';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class GameService {
 
-	wasmReady = false;
-
 	app: Application;
 
 	world: World;
 	screen: Screen;
 	debug: Debug;
-
-	init = false;
-
-	t: Text;
+	menu: Menu;
+	editor: Editor;
 
 	constructor() {
+		// console.log('abc', a);
+	}
+
+	switch(name: string) {
+		for (const s of ['world', 'editor']) {
+			const o = this[s];
+			if (name === s) {
+				o.show();
+			} else {
+				o.hide();
+			}
+		}
 	}
 
 	tick(delta: number) {
-
-		if (!this.init) {
-			this.init = true;
-			this.doInit();
-			if (this.wasmReady) {
-				this.wasmInit();
-			}
-		}
-
 		this.screen.run();
-		if (this.wasmReady) {
-			this.world.run();
-			this.debug.run();
-		}
-		// this.t.text('' + this.count);
-
-		// console.log('game tick', this.app, Math.PI / delta);
+		this.world.run();
+		this.debug.run();
+		this.menu.run();
+		this.editor.run();
 	}
 
-	wasmInit() {
-		this.wasmReady = true;
-		if (!this.init) {
-			return;
-		}
-		console.log('wasmInit');
-		this.screen.wasmInit();
-		this.world.wasmInit();
+	setApp(app: Application) {
+		this.app = app;
+		this.screen = new Screen(app);
 	}
 
-	doInit() {
-
+	init() {
 		const a = this.app;
 
-		this.screen = new Screen(a);
-
-		this.world = new World(a, this.screen);
+		this.world = new World();
 
 		this.debug = new Debug(a);
 		this.debug.target = this;
 
+		this.menu = new Menu();
+		this.menu.init(this);
+
+		this.editor = new Editor();
+		this.editor.init(this);
+
+		this.screen.init();
+		this.world.init(this);
+
 		console.log('game init', a);
+
+		this.switch('world');
 	}
 }

@@ -1,5 +1,6 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
 import { Application } from 'pixi.js';
+import * as WebFont from 'webfontloader';
 import { GameService } from './game/game.service';
 import { WasmService } from './game/wasm.service';
 import { Input } from './game/input';
@@ -26,10 +27,32 @@ export class AppComponent {
 	) {
 		this.init();
 
-		(async () => {
-			await wasm.wait();
-			game.wasmInit();
-		})();
+		this.wait();
+	}
+
+	wait() {
+		Promise.all([
+			this.wasm.wait,
+			this.fontWait(),
+		]).then(() => {
+			this.game.init();
+			this.app.ticker.add((delta) => {
+				this.game.tick(delta);
+			});
+		});
+	}
+
+	fontWait() {
+		return new Promise((resolve, reject) => {
+			WebFont.load({
+				google: {
+					families: ['Roboto Mono', 'Roboto']
+				},
+				active: () => {
+					resolve();
+				},
+			});
+		});
 	}
 
 	init() {
@@ -38,17 +61,12 @@ export class AppComponent {
 			resolution: window.devicePixelRatio || 1,
 			resizeTo: window,
 		});
+		app.renderer.backgroundColor = 0x112233;
+
 		this.el.nativeElement.appendChild(app.view);
 		this.app = app;
-		this.game.app = app;
-
-		app.ticker.add((delta) => {
-			this.game.tick(delta);
-		});
-
-		const a = this.app;
-
-		a.renderer.backgroundColor = 0x112233;
+		this.game.setApp(app);
+		console.log('app init');
 	}
 
 	@HostListener('click', ['$event'])

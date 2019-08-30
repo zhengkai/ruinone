@@ -64,18 +64,8 @@ func NewPlayer(id, fps int) (p *Player) {
 
 	p.W = 0.7
 	p.H = 0.9
-	p.X = 10
 
 	return
-}
-
-func (r *Room) mngJump(a *cmdJump) {
-
-	if r.me == nil {
-		j.Log(`jump not found me`)
-		return
-	}
-	r.me.Jump(a.Jump)
 }
 
 func (r *Room) mngRun(a *cmdRun) {
@@ -85,16 +75,6 @@ func (r *Room) mngRun(a *cmdRun) {
 		return
 	}
 	r.me.Run(a.Run)
-}
-
-// Jump ...
-func (p *Player) Jump(v bool) {
-
-	c := p.control
-
-	if !c.JumpPress && v {
-		c.Jump = true
-	}
 }
 
 // Run ...
@@ -140,7 +120,7 @@ func (p *Player) tick() {
 		minCheck := 0.001
 		if phy.VY == 0 && phy.X > minCheck {
 			ok := false
-			for _, v := range fieldOne {
+			for _, v := range p.room.field.list {
 				ok, _ = phy.checkOverlap(&v.Physics)
 			}
 			if !ok {
@@ -196,7 +176,7 @@ func (p *Player) calcTick(rate float64) (phy *Physics, overlap *phyOver) {
 			VY: vy,
 		}
 
-		for _, v := range fieldOne {
+		for _, v := range p.room.field.list {
 			a := v.Physics
 			ok, over := phy.checkOverlap(&a)
 			if !ok {

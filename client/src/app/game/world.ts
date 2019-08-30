@@ -1,10 +1,12 @@
-import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
+import { Application, Container } from 'pixi.js';
 import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
 import { Input } from './input';
 import { Screen } from './screen';
-import { Field } from './field';
+import { Field, FieldDump } from './field';
 
+declare const goSetMap: any;
+declare const goPause: any;
 declare const goField: any;
 declare const goDump: any;
 declare const goJump: any;
@@ -12,13 +14,14 @@ declare const goRun: any;
 
 export class World {
 
-	wasmReady = false;
+	game: GameService;
 
 	c = new Container();
 
 	tick = 0;
 
 	gridSize = 0;
+	gridSizeChange = false;
 
 	x = 8;
 	y = 3;
@@ -30,34 +33,74 @@ export class World {
 	jumpSent = false;
 	runSent = 0;
 
-	constructor(private app: Application, private screen: Screen) {
-		app.stage.addChild(this.c);
+	constructor() {
+		this.c.visible = false;
 	}
 
-	wasmInit() {
-		this.wasmReady = true;
+	hide() {
+		this.c.visible = false;
+		goPause(true);
+	}
+
+	show() {
+		this.c.visible = true;
+		goPause(false);
+		this.loadMap();
+	}
+
+	init(g: GameService) {
+
+		this.game = g;
+		g.app.stage.addChild(this.c);
 
 		const seed = Math.floor(Math.random() * 999999999);
 
-		// this.playerID = goPlayer();
+		this.loadMap();
 
-		goField().list.forEach((v) => {
+		this.center();
+	}
+
+	loadMap() {
+
+		for (const f of this.field) {
+			f.graphic.destroy();
+		}
+		this.field.length = 0;
+
+		let i = -1;
+		let id = 0;
+		const editor = this.game.editor;
+		const map = editor.loadMapStr();
+		for (const s of map) {
+			i++;
+			if (s !== '1') {
+				continue;
+			}
+
+			id++;
+			const v = {
+				id,
+				x: Math.floor(i / editor.size.h),
+				y: i % editor.size.h,
+			} as FieldDump;
+
+			// console.log('field', v);
 
 			const f = this.newField();
 			f.setDump(v);
 			f.draw(this.x, this.y);
 			this.field.push(f);
+		}
+		goSetMap(map);
 
-			// console.log(f);
-		});
-
-		this.center();
+		// console.log('map size', id, map);
 	}
 
 	run() {
-		// this.tick++;
 
-		// console.log('tick start');
+		if (!this.c.visible) {
+			return;
+		}
 
 		let ts = +Date.now();
 		const dump = goDump();
@@ -96,37 +139,42 @@ export class World {
 	}
 
 	center() {
-		const s = this.screen;
+		const s = this.game.screen;
 		const p = this.c.position;
 		p.x = s.centerW;
 		p.y = s.centerH;
 
-		if (!this.gridSize) {
+		if (this.gridSize !== s.gridSize) {
 			this.gridSize = s.gridSize;
+			this.gridSizeChange = true;
 		}
 	}
 
 	loop() {
 
-		const gs = this.screen.gridSize;
-
-		// console.log('child', this.child.length);
-		//
+		const gs = this.game.screen.gridSize;
 
 		this.child.forEach((p) => {
 			p.draw(this.x, this.y);
 		});
+
+		if (this.gridSizeChange) {
+			this.gridSizeChange = false;
+			for (const f of this.field) {
+				f.draw(this.x, this.y);
+			}
+		}
 	}
 
 	newPlayer(): Player {
-		const p = new Player(this.screen);
+		const p = new Player(this.game.screen);
 		this.c.addChild(p.graphic);
 		// this.child.push(p);
 		return p;
 	}
 
 	newField(): Field {
-		const f = new Field(this.screen);
+		const f = new Field(this.game.screen);
 		this.c.addChild(f.graphic);
 		return f;
 	}
