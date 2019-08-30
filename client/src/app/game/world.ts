@@ -3,7 +3,7 @@ import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
 import { Input } from './input';
 import { Screen } from './screen';
-import { Field } from './field';
+import { Field, FieldDump } from './field';
 
 declare const goSetMap: any;
 declare const goPause: any;
@@ -14,7 +14,7 @@ declare const goRun: any;
 
 export class World {
 
-	wasmReady = false;
+	game: GameService;
 
 	c = new Container();
 
@@ -33,8 +33,7 @@ export class World {
 	jumpSent = false;
 	runSent = 0;
 
-	constructor(private app: Application, private screen: Screen) {
-		app.stage.addChild(this.c);
+	constructor() {
 		this.c.visible = false;
 	}
 
@@ -46,19 +45,55 @@ export class World {
 	show() {
 		this.c.visible = true;
 		goPause(false);
+		this.loadMap();
 	}
 
-	init() {
+	init(g: GameService) {
+
+		this.game = g;
+		g.app.stage.addChild(this.c);
+
 		const seed = Math.floor(Math.random() * 999999999);
 
-		goField().list.forEach((v) => {
+		this.loadMap();
+
+		this.center();
+	}
+
+	loadMap() {
+
+		for (const f of this.field) {
+			f.graphic.destroy();
+		}
+		this.field.length = 0;
+
+		let i = -1;
+		let id = 0;
+		const editor = this.game.editor;
+		const map = editor.loadMapStr();
+		for (const s of map) {
+			i++;
+			if (s !== '1') {
+				continue;
+			}
+
+			id++;
+			const v = {
+				id,
+				x: Math.floor(i / editor.size.h),
+				y: i % editor.size.h,
+			} as FieldDump;
+
+			// console.log('field', v);
+
 			const f = this.newField();
 			f.setDump(v);
 			f.draw(this.x, this.y);
 			this.field.push(f);
-		});
+		}
+		goSetMap(map);
 
-		this.center();
+		// console.log('map size', id, map);
 	}
 
 	run() {
@@ -104,7 +139,7 @@ export class World {
 	}
 
 	center() {
-		const s = this.screen;
+		const s = this.game.screen;
 		const p = this.c.position;
 		p.x = s.centerW;
 		p.y = s.centerH;
@@ -117,7 +152,7 @@ export class World {
 
 	loop() {
 
-		const gs = this.screen.gridSize;
+		const gs = this.game.screen.gridSize;
 
 		this.child.forEach((p) => {
 			p.draw(this.x, this.y);
@@ -132,14 +167,14 @@ export class World {
 	}
 
 	newPlayer(): Player {
-		const p = new Player(this.screen);
+		const p = new Player(this.game.screen);
 		this.c.addChild(p.graphic);
 		// this.child.push(p);
 		return p;
 	}
 
 	newField(): Field {
-		const f = new Field(this.screen);
+		const f = new Field(this.game.screen);
 		this.c.addChild(f.graphic);
 		return f;
 	}

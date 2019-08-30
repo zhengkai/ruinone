@@ -2,7 +2,7 @@ package room
 
 var (
 	fieldBasic = [][]int{
-		[]int{1},
+		[]int{},
 		[]int{1},
 		[]int{},
 		[]int{1},
@@ -25,6 +25,10 @@ var (
 	// FieldDump ...
 	FieldDump = make(map[string]interface{})
 )
+
+type fieldMap struct {
+	list []*field
+}
 
 type field struct {
 	Physics

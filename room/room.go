@@ -15,6 +15,8 @@ type Room struct {
 	me    *Player
 	fps   int
 
+	field *fieldMap
+
 	pause bool
 
 	tickCount         int
@@ -24,11 +26,58 @@ type Room struct {
 }
 
 func (r *Room) mngSetMap(a *cmdSetMap) {
-	j.Log(a.Map)
+
+	for _, v := range r.pl {
+		p := NewPlayer(v.ID, r.fps)
+		r.addPlayer(p)
+
+		if r.me == v {
+			r.me = p
+		}
+	}
+
+	var list []*field
+	id := 0
+	for i, s := range a.Map {
+
+		if i == 0 {
+			continue
+		}
+
+		x := i / 16
+		y := i % 16
+		if x > 30 {
+			break
+		}
+
+		if s != '1' {
+			continue
+		}
+
+		id++
+		f := &field{
+			id: id,
+		}
+
+		f.W = 1
+		f.H = 1
+		f.X = float64(x)
+		f.Y = float64(y)
+
+		list = append(list, f)
+	}
+
+	r.field = &fieldMap{
+		list: list,
+	}
+
+	// j.Log(`room set map`, len(r.field.list), a.Map)
 }
 
 func (r *Room) mngPause(a *cmdPause) {
 	r.pause = a.Pause
+
+	// j.Log(`room set pause`, r.pause)
 }
 
 func (r *Room) mngDump(a *cmdDump) {

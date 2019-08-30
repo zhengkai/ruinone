@@ -30,12 +30,14 @@ func New(seed int64, fps int) (r *Room) {
 	duration := time.Second / time.Duration(fps)
 
 	r = &Room{
-		ID:                int(id),
-		pl:                make(map[int]*Player),
-		rand:              rand.New(rand.NewSource(seed)),
-		cmdCh:             make(chan interface{}, 10),
-		ai:                1,
-		fps:               fps,
+		ID:    int(id),
+		pl:    make(map[int]*Player),
+		rand:  rand.New(rand.NewSource(seed)),
+		cmdCh: make(chan interface{}, 10),
+		ai:    1,
+		fps:   fps,
+		field: &fieldMap{},
+
 		tickTime:          &t,
 		tickDuration:      duration,
 		tickDurationFloat: float64(duration),

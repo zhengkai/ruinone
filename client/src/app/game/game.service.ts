@@ -50,7 +50,7 @@ export class GameService {
 	init() {
 		const a = this.app;
 
-		this.world = new World(a, this.screen);
+		this.world = new World();
 
 		this.debug = new Debug(a);
 		this.debug.target = this;
@@ -62,10 +62,10 @@ export class GameService {
 		this.editor.init(this);
 
 		this.screen.init();
-		this.world.init();
+		this.world.init(this);
 
 		console.log('game init', a);
 
-		this.switch('editor');
+		this.switch('world');
 	}
 }

@@ -72,7 +72,6 @@ export class Editor {
 	}
 
 	matrix() {
-
 		for (let x = 0; x < this.size.w; x++) {
 			for (let y = 0; y < this.size.h; y++) {
 				this.genGrid(x, y);
@@ -89,7 +88,7 @@ export class Editor {
 	}
 
 	loadMap() {
-		const map = localStorage.getItem('map');
+		const map = this.loadMapStr();
 		if (map) {
 			let i = 0;
 			for (const o of this.mapGrid) {
@@ -97,6 +96,17 @@ export class Editor {
 				i++;
 			}
 		}
+	}
+
+	loadMapStr() {
+		let map = localStorage.getItem('map');
+		if (!map || map.length < 10) {
+			map = '00001000000000000000000000000000100000000000000000000000000'
+				+ '00000110000000000000011110000000000001111000000000000000000'
+				+ '00000000000000000000000000000010000000000000000000000000000'
+				+ '001000000000000001100000000000000110000000000000001';
+		}
+		return map;
 	}
 
 	saveMap() {
@@ -120,6 +130,10 @@ export class Editor {
 	}
 
 	genGrid(x: number, y: number) {
+
+		if (x === 0 && y === 0) {
+			return;
+		}
 
 		const gs = this.game.screen.gridSize / 2;
 
