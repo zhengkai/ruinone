@@ -3,74 +3,120 @@ import { GameService } from './game.service';
 
 export class Menu {
 
-	topMenu = new Container();
+	topMenu: Container;
 
 	game: GameService;
 
+	menuCount = 0;
+
 	gridSize = 10;
 
-	style = new TextStyle({
-		fontFamily: 'Roboto Mono',
-		fontSize: 32,
-		fill: 0x000000,
-		align: 'center',
-	});
+	style = new TextStyle();
 
 	constructor() {
 	}
 
 	init(game: GameService) {
-		game.app.stage.addChild(this.topMenu);
-		this.game = game;
 
-		this.topMenu.position.x = 10;
-		this.topMenu.position.y = 10;
-		this.topMenu.zIndex = 100000;
+		this.game = game;
 
 		this.buildTop();
 	}
 
 	buildTop() {
+
+		if (this.topMenu) {
+			this.topMenu.destroy();
+		}
+
+		const g = this.game;
+		const s = g.screen;
+		const gs = s.gridSize;
+
+		const c = new Container();
+		this.topMenu = c;
+		this.game.app.stage.addChild(c);
+
+		const margin = gs * 0.2;
+
+		c.zIndex = 300000;
+		this.menuCount = 0;
+
+		this.addMenu('Game', () => {
+			g.switch('world');
+		});
+		this.addMenu('Editor', () => {
+			g.switch('editor');
+		});
+
+		c.position.x = s.centerW - c.width / 2;
+		c.position.y = margin;
+
+		// console.log(c.width, c.position.x, s.centerW);
+	}
+
+	addMenu(name: string, clickCb: any) {
+
+		const gs = this.game.screen.gridSize / 2;
+
 		const a = new Container();
 		this.topMenu.addChild(a);
-		a.alpha = 0.5;
 
-		// const gs = this.game.screen.gridSize;
-		const gs = 64;
+		const width = gs * 3;
 
-		console.log('gs', gs);
+		a.position.x = (width + gs * 0.2) * this.menuCount;
+		this.menuCount++;
 
-		const o = (new Graphics())
-			.beginFill(0xffffff)
-			.drawRect(0, 0, gs * 5, gs);
-		a.addChild(o);
+		const bg = (new Graphics())
+			.beginFill(0x669966)
+			.drawRect(0, 0, width, gs);
+		a.addChild(bg);
+
+		const hover = (new Graphics())
+			.beginFill(0xccddcc)
+			.drawRect(0, 0, width, gs);
+		a.addChild(hover);
+
+		hover.visible = false;
+
 		a.interactive = true;
-		a.hitArea = new Rectangle(0, 0, gs * 5, gs);
+		a.hitArea = new Rectangle(0, 0, width, gs);
 
-		const text = new Text('button', this.style);
+		const text = new Text(name, {
+			fontFamily: 'Roboto',
+			fontSize: gs / 2,
+			fontWeight: 'bold',
+			fill: 0x000000,
+			align: 'center',
+			stroke: '#ffffff',
+			strokeThickness: gs / 20,
+		});
 		text.anchor.x = 0.5;
 		text.anchor.y = 0.5;
-		text.position.x = gs * 2.5;
-		text.position.y = gs * 0.5;
+		text.position.x = width / 2;
+		text.position.y = gs / 2;
 		a.addChild(text);
 
 		a.buttonMode = true;
 
-		a.on('pointerdown', (d) => {
-			console.log('click', d);
-		});
+		a.on('pointerdown', clickCb);
 
 		a.on('pointerover', (d) => {
-			console.log('over', d);
-			a.alpha = 1;
+			hover.visible = true;
+			bg.visible = false;
+			// console.log(name, 'over', d);
 		});
 
 		a.on('pointerout', (d) => {
-			console.log('out', d);
-			a.alpha = 0.5;
+			hover.visible = false;
+			bg.visible = true;
+			// console.log(name, 'out', d);
 		});
 	}
 
 	run() {
+		if (this.game.screen.resize) {
+			this.buildTop();
+		}
 	}
 }

@@ -38,6 +38,12 @@ func (r *Room) manager() {
 			case *cmdRun:
 				r.mngRun(a.(*cmdRun))
 
+			case *cmdSetMap:
+				r.mngSetMap(a.(*cmdSetMap))
+
+			case *cmdPause:
+				r.mngPause(a.(*cmdPause))
+
 			case *cmdClose:
 				ticker.Stop()
 				return

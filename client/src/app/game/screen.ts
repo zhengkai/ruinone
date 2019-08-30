@@ -7,6 +7,8 @@ export class Screen {
 	head = new Container();
 	center = new Container();
 
+	resize = false;
+
 	prevW = 1;
 	prevH = 1;
 
@@ -71,8 +73,10 @@ export class Screen {
 		const h = sc.height;
 
 		if (this.prevW === w && this.prevH === h) {
+			this.resize = false;
 			return;
 		}
+		this.resize = true;
 		this.prevW = w;
 		this.prevH = h;
 

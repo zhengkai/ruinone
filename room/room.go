@@ -15,10 +15,20 @@ type Room struct {
 	me    *Player
 	fps   int
 
+	pause bool
+
 	tickCount         int
 	tickTime          *time.Time
 	tickDuration      time.Duration
 	tickDurationFloat float64
+}
+
+func (r *Room) mngSetMap(a *cmdSetMap) {
+	j.Log(a.Map)
+}
+
+func (r *Room) mngPause(a *cmdPause) {
+	r.pause = a.Pause
 }
 
 func (r *Room) mngDump(a *cmdDump) {
@@ -34,6 +44,10 @@ func (r *Room) addPlayer(p *Player) {
 }
 
 func (r *Room) tick(t *time.Time) {
+
+	if r.pause {
+		return
+	}
 
 	for _, p := range r.pl {
 		p.tick()

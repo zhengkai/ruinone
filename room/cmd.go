@@ -23,6 +23,14 @@ type cmdRun struct {
 type cmdClose struct {
 }
 
+type cmdSetMap struct {
+	Map string
+}
+
+type cmdPause struct {
+	Pause bool
+}
+
 // CmdNewPlayer ...
 func (r *Room) CmdNewPlayer() int {
 	a := &cmdNewPlayer{}
@@ -57,6 +65,22 @@ func (r *Room) CmdJump(jump bool) {
 func (r *Room) CmdRun(run float64) {
 	a := &cmdRun{
 		Run: run,
+	}
+	r.cmdCh <- a
+}
+
+// CmdSetMap ...
+func (r *Room) CmdSetMap(m string) {
+	a := &cmdSetMap{
+		Map: m,
+	}
+	r.cmdCh <- a
+}
+
+// CmdPause ...
+func (r *Room) CmdPause(p bool) {
+	a := &cmdPause{
+		Pause: p,
 	}
 	r.cmdCh <- a
 }

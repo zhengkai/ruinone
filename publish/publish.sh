@@ -11,6 +11,8 @@ TARGET='/www/site/ruin.one/www'
 
 	./node_modules/@angular/cli/bin/ng build --prod --base-href 'https://ruin.one/'
 
+	rm dist/prod/assets/.gitignore
+
 	rsync --partial -vzrtopg -e ssh "${DIR}/dist/prod/" "freya:${TARGET}"
 
 	ssh freya "cd '${TARGET}' ; rm *.gz ; rm assets/*.gz ; rm assets/.git* ; gzip -r -k *" || :

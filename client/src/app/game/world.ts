@@ -5,6 +5,8 @@ import { Input } from './input';
 import { Screen } from './screen';
 import { Field } from './field';
 
+declare const goSetMap: any;
+declare const goPause: any;
 declare const goField: any;
 declare const goDump: any;
 declare const goJump: any;
@@ -33,6 +35,17 @@ export class World {
 
 	constructor(private app: Application, private screen: Screen) {
 		app.stage.addChild(this.c);
+		this.c.visible = false;
+	}
+
+	hide() {
+		this.c.visible = false;
+		goPause(true);
+	}
+
+	show() {
+		this.c.visible = true;
+		goPause(false);
 	}
 
 	init() {
@@ -49,9 +62,10 @@ export class World {
 	}
 
 	run() {
-		// this.tick++;
 
-		// console.log('tick start');
+		if (!this.c.visible) {
+			return;
+		}
 
 		let ts = +Date.now();
 		const dump = goDump();
