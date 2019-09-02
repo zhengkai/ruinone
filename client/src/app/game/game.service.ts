@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Application, Graphics, Text } from 'pixi.js';
+import { Input } from './input';
 import { World } from './world';
 import { Editor } from './editor';
 import { Screen } from './screen';
 import { Debug } from './debug';
 import { Camera } from './camera';
 import { Menu } from './menu';
+import { Control } from './control';
 
 @Injectable({
 	providedIn: 'root'
@@ -19,12 +21,16 @@ export class GameService {
 	debug: Debug;
 	menu: Menu;
 	editor: Editor;
+	control: Control;
+
+	mode = 'world';
 
 	constructor() {
 		// console.log('abc', a);
 	}
 
 	switch(name: string) {
+		this.mode = name;
 		for (const s of ['world', 'editor']) {
 			const o = this[s];
 			if (name === s) {
@@ -38,6 +44,9 @@ export class GameService {
 	tick(delta: number) {
 
 		Camera.calc();
+		this.sortChildren();
+
+		this.control.run();
 
 		this.screen.run();
 		this.world.run();
@@ -56,8 +65,8 @@ export class GameService {
 
 		this.world = new World();
 
-		this.debug = new Debug(a);
-		this.debug.target = this;
+		this.debug = new Debug();
+		this.debug.init(this);
 
 		this.menu = new Menu();
 		this.menu.init(this);
@@ -66,10 +75,23 @@ export class GameService {
 		this.editor.init(this);
 
 		this.screen.init();
+
+		this.control = new Control();
+		this.control.init(this);
+
+		// world init after all
 		this.world.init(this);
 
-		console.log('game init', a);
+		this.sortChildren();
 
-		this.switch('world');
+		console.log('game init', this, Camera.resize);
+
+		this.switch(this.mode);
+	}
+
+	sortChildren() {
+		if (Camera.resize) {
+			this.app.stage.sortChildren();
+		}
 	}
 }

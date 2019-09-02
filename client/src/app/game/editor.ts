@@ -8,6 +8,7 @@ export interface Grid {
 	id: number;
 	c: Container;
 	select: Graphics;
+	cover: Graphics;
 }
 
 export class Editor {
@@ -46,6 +47,11 @@ export class Editor {
 	}
 
 	run() {
+		if (Camera.resize) {
+			for (const o of this.mapGrid) {
+				this.gridGraphics(o);
+			}
+		}
 	}
 
 	init(game: GameService) {
@@ -76,13 +82,6 @@ export class Editor {
 			for (let y = 0; y < this.size.h; y++) {
 				this.genGrid(x, y);
 			}
-		}
-		this.refreshMap();
-	}
-
-	refreshMap() {
-		for (const a of this.mapGrid) {
-			this.putGrid(a);
 		}
 		this.loadMap();
 	}
@@ -122,53 +121,23 @@ export class Editor {
 		localStorage.setItem('map', s);
 	}
 
-	putGrid(o: Grid) {
-
-		const x = o.x - this.pos.x;
-
-		const y = - (o.y - this.pos.y);
-
-		const gs = Camera.gridSize / 2;
-
-		o.c.position.x = (gs + 3) * x;
-		o.c.position.y = (gs + 3) * y;
-	}
-
 	genGrid(x: number, y: number) {
 
 		if (x === 0 && y === 0) {
 			return;
 		}
 
-		const gs = Camera.gridSize / 2;
-
 		const c = new Container();
-
-		const select = (new Graphics())
-			.beginFill(0xddeeff)
-			.drawRect(0, 0, gs, gs);
-		select.visible = false;
-		select.zIndex = 1;
-		c.addChild(select);
 
 		const o = {
 			x,
 			y,
 			id: x * this.size.w + y,
 			c,
-			select,
 		} as Grid;
 
 		c.interactive = true;
-		c.hitArea = new Rectangle(0, 0, gs, gs);
-
-		const cover = (new Graphics())
-			.beginFill(0xccffff)
-			.drawRect(0, 0, gs, gs);
-		cover.alpha = 0.1;
-		cover.zIndex = 1000;
-
-		c.addChild(cover);
+		this.gridGraphics(o);
 
 		this.map.addChild(o.c);
 		this.mapGrid.push(o);
@@ -180,12 +149,46 @@ export class Editor {
 		});
 
 		c.on('pointerover', (d) => {
-			cover.alpha = 0.3;
+			o.cover.alpha = 0.3;
 		});
 
 		c.on('pointerout', (d) => {
-			cover.alpha = 0.1;
+			o.cover.alpha = 0.1;
 		});
+	}
+
+	gridGraphics(o: Grid) {
+
+		o.c.removeChildren();
+
+		const gs = Camera.gridSize / 2;
+
+		const select = (new Graphics())
+			.beginFill(0xddeeff)
+			.drawRect(0, 0, gs, gs);
+		select.visible = false;
+
+		o.c.addChild(select);
+		o.select = select;
+
+		o.c.hitArea = new Rectangle(0, 0, gs, gs);
+
+		const cover = (new Graphics())
+			.beginFill(0xccffff)
+			.drawRect(0, 0, gs, gs);
+		cover.alpha = 0.1;
+		cover.zIndex = 1000;
+
+		o.c.addChild(cover);
+		o.cover = cover;
+
+		o.c.sortChildren();
+
+		const x = o.x - this.pos.x;
+		const y = - (o.y - this.pos.y);
+		o.c.position.x = (gs + 3) * x;
+		o.c.position.y = (gs + 3) * y;
+
 	}
 
 	clickGrid(o: Grid, rightMouse: boolean) {

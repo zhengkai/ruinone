@@ -34,12 +34,12 @@ export class Menu {
 		const gs = Camera.gridSize;
 
 		const c = new Container();
+		c.zIndex = 300000;
 		this.topMenu = c;
 		this.game.app.stage.addChild(c);
 
 		const margin = gs * 0.2;
 
-		c.zIndex = 300000;
 		this.menuCount = 0;
 
 		this.addMenu('Game', () => {
@@ -49,9 +49,32 @@ export class Menu {
 			g.switch('editor');
 		});
 
+		this.addMenuBg(c);
+
 		c.position.x = Camera.centerX - c.width / 2;
-		console.log('Camera.centerX', Camera.centerX, c.position.x);
+		// console.log('Camera.centerX', Camera.centerX, c.position.x);
 		c.position.y = margin;
+	}
+
+	addMenuBg(o: Container) {
+
+		const gs = Camera.gridSize / 2;
+
+		const border = gs * 0.2;
+
+		const width = (gs * 3 + border) * this.menuCount - border;
+
+		const bg = (new Graphics())
+			.beginFill(0x3d5c3d)
+			.drawRect(0, 0, width + border * 2, gs + border * 2);
+		bg.zIndex = -10;
+		bg.alpha = 0.8;
+		bg.position.x = - border;
+		bg.position.y = - border;
+		bg.interactive = true;
+
+		o.addChild(bg);
+		o.sortChildren();
 	}
 
 	addMenu(name: string, clickCb: any) {

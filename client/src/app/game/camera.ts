@@ -1,4 +1,10 @@
-import { Rectangle, Container } from 'pixi.js';
+import { Graphics, Rectangle, Container } from 'pixi.js';
+
+export class CameraDraw {
+	x: number;
+	y: number;
+	graphic: Graphics;
+}
 
 export class Camera {
 
@@ -63,15 +69,15 @@ export class Camera {
 		// console.log('Camera.setPos', x, y, this.prevX, this.prevY);
 
 		if (this.prevX === x && this.prevY === y) {
-			// console.log('Camera.setPos', false);
 			this.posChange = false;
+			// console.log('Camera.setPos', false);
 			return;
 		}
-		this.posChange = true;
-		// console.log('Camera.setPos', true);
-
 		this.prevX = x;
 		this.prevY = y;
+
+		this.posChange = true;
+		// console.log('Camera.setPos', true);
 
 		x = Math.max(6, x);
 		y = Math.max(3, y);
@@ -80,7 +86,7 @@ export class Camera {
 		this.y = y;
 	}
 
-	static draw(o: Container, x: number, y: number) {
+	static draw(o: CameraDraw) {
 
 		if (!this.start) {
 			return;
@@ -88,8 +94,9 @@ export class Camera {
 
 		const gs = this.gridSize;
 
-		o.position.x = gs * (x - this.x);
-		o.position.y = - gs * (y - this.y);
+		const pos = o.graphic.position;
+		pos.x = gs * (o.x - this.x);
+		pos.y = - gs * (o.y - this.y);
 
 		// console.log('Camera draw', o, this.x, this.y, gs, o.position.x, o.position.x);
 	}

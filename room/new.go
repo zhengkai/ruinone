@@ -26,7 +26,6 @@ func New(seed int64, fps int) (r *Room) {
 		fps = 1000
 	}
 
-	t := time.Now()
 	duration := time.Second / time.Duration(fps)
 
 	r = &Room{
@@ -38,7 +37,7 @@ func New(seed int64, fps int) (r *Room) {
 		fps:   fps,
 		field: &fieldMap{},
 
-		tickTime:          &t,
+		tickTime:          time.Now(),
 		tickDuration:      duration,
 		tickDurationFloat: float64(duration),
 	}

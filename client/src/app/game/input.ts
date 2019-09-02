@@ -4,6 +4,8 @@ export interface InputData {
 	e: boolean;
 	w: boolean;
 	jump: boolean;
+	pause: boolean;
+	debug: boolean;
 }
 
 export class Input {
@@ -16,6 +18,8 @@ export class Input {
 		e: false,
 		w: false,
 		jump: false,
+		pause: false,
+		debug: false,
 	};
 
 	static keyMap = {
@@ -31,9 +35,15 @@ export class Input {
 		40: 's', // ⬇️
 
 		32: 'jump', // space
+
+		80: 'pause', // p
+
+		220: 'debug', // \
 	};
 
 	static key(code: number, down: boolean) {
+
+		// console.log('key', code, down);
 
 		const k = this.keyMap[code];
 		if (!k) {
@@ -56,6 +66,8 @@ export class Input {
 			w: s.w,
 			e: s.e,
 			jump: s.jump,
+			pause: s.pause,
+			debug: s.debug,
 		};
 
 		if (re.s && re.n) {

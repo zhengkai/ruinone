@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { Screen } from './screen';
-import { Camera } from './camera';
+import { Camera, CameraDraw } from './camera';
 
 export interface FieldDump {
 	id: number;
@@ -8,17 +8,17 @@ export interface FieldDump {
 	y: number;
 }
 
-export class Field {
+export class Field implements CameraDraw {
 
 	dump: FieldDump;
-	graphic: Graphics;
 
 	gridSize = 10;
 
+	graphic: Graphics;
 	x = 0;
 	y = 0;
 
-	constructor(private screen: Screen) {
+	constructor() {
 
 		this.x = Math.random() * 5 + 3;
 
@@ -32,6 +32,7 @@ export class Field {
 		const g = (new Graphics())
 			.beginFill(0x99aacc)
 			.drawRect(- w / 2, -h, w, h);
+		g.zIndex = -100;
 
 		this.graphic = g;
 	}
@@ -40,21 +41,5 @@ export class Field {
 		this.dump = a;
 		this.x = a.x;
 		this.y = a.y;
-	}
-
-	draw() {
-
-		// const gs = Camera.gridSize;
-
-		Camera.draw(this.graphic, this.x, this.y);
-
-		/*
-		const g = this.graphic;
-		g.position.x = gs * (this.x - x);
-		g.position.y = - gs * (this.y - y);
-
-		const scale = gs / this.gridSize;
-		g.scale.set(scale, scale);
-		 */
 	}
 }

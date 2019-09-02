@@ -23,7 +23,7 @@ type Room struct {
 	pause bool
 
 	tickCount         int
-	tickTime          *time.Time
+	tickTime          time.Time
 	tickDuration      time.Duration
 	tickDurationFloat float64
 }
@@ -110,7 +110,7 @@ func (r *Room) tick(t *time.Time) {
 	}
 
 	r.tickCount++
-	r.tickTime = t
+	r.tickTime = *t
 
 	if r.me != nil {
 		r.me.parseControl()
@@ -120,7 +120,9 @@ func (r *Room) tick(t *time.Time) {
 // Dump ...
 func (r *Room) Dump() (a map[string]interface{}) {
 
-	duration := time.Now().Sub(*r.tickTime)
+	duration := time.Now().Sub(r.tickTime)
+
+	// j.Log(r.tickCount, duration, r.tickTime.Format(`15:04:05.000`))
 	if duration > r.tickDuration {
 		duration = r.tickDuration
 	}

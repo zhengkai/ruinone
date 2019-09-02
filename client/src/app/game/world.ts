@@ -1,7 +1,6 @@
 import { Application, Container } from 'pixi.js';
 import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
-import { Input } from './input';
 import { Camera } from './camera';
 import { Screen } from './screen';
 import { Field, FieldDump } from './field';
@@ -10,8 +9,6 @@ declare const goSetMap: any;
 declare const goPause: any;
 declare const goField: any;
 declare const goDump: any;
-declare const goJump: any;
-declare const goRun: any;
 
 export class World {
 
@@ -57,6 +54,8 @@ export class World {
 	init(g: GameService) {
 
 		this.game = g;
+
+		this.c.zIndex = -100;
 		g.app.stage.addChild(this.c);
 
 		const seed = Math.floor(Math.random() * 999999999);
@@ -96,7 +95,7 @@ export class World {
 
 			const f = this.newField();
 			f.setDump(v);
-			f.draw();
+			Camera.draw(f);
 			this.field.push(f);
 		}
 		goSetMap(map);
@@ -134,8 +133,6 @@ export class World {
 			p.setDump(v);
 		}
 
-		this.control();
-
 		this.loop();
 	}
 
@@ -143,7 +140,6 @@ export class World {
 		const p = this.c.position;
 		p.x = Camera.centerX;
 		p.y = Camera.centerY;
-
 	}
 
 	loop() {
@@ -151,13 +147,14 @@ export class World {
 		const gs = Camera.gridSize;
 
 		this.child.forEach((p) => {
-			p.draw();
+			Camera.draw(p);
 		});
 
-		for (const f of this.field) {
-			f.draw();
-		}
 		if (Camera.posChange) {
+			// console.log('pos change');
+			for (const f of this.field) {
+				Camera.draw(f);
+			}
 		}
 	}
 
@@ -169,28 +166,8 @@ export class World {
 	}
 
 	newField(): Field {
-		const f = new Field(this.game.screen);
+		const f = new Field();
 		this.c.addChild(f.graphic);
 		return f;
-	}
-
-	control() {
-		const c = Input.get();
-
-		if (this.jumpSent !== c.jump) {
-			this.jumpSent = c.jump;
-			goJump(this.jumpSent);
-		}
-
-		let run = 0;
-		if (c.e) {
-			run = 1;
-		} else if (c.w) {
-			run = -1;
-		}
-		if (this.runSent !== run) {
-			this.runSent = run;
-			goRun(this.runSent);
-		}
 	}
 }

@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { Screen } from './screen';
-import { Camera } from './camera';
+import { Camera, CameraDraw } from './camera';
 
 export interface PlayerDump {
 	id: number;
@@ -9,13 +9,13 @@ export interface PlayerDump {
 	y: number;
 }
 
-export class Player {
+export class Player implements CameraDraw {
 
 	dump: PlayerDump;
-	graphic: Graphics;
 
 	gridSize = 10;
 
+	graphic: Graphics;
 	x = 0;
 	y = 0;
 
@@ -33,6 +33,7 @@ export class Player {
 		const g = (new Graphics())
 			.beginFill(0xddeeff)
 			.drawRoundedRect(- w / 2, -h, w, h, 0.2 * w);
+		g.zIndex = -100;
 
 		this.graphic = g;
 	}
@@ -41,22 +42,5 @@ export class Player {
 		this.dump = a;
 		this.x = a.x;
 		this.y = a.y;
-	}
-
-	draw() {
-
-		Camera.draw(this.graphic, this.x, this.y);
-
-	/*
-
-		const gs = this.screen.gridSize;
-
-		const g = this.graphic;
-		g.position.x = gs * (this.x - x);
-		g.position.y = - gs * (this.y - y);
-
-		const scale = gs / this.gridSize;
-		g.scale.set(scale, scale);
-	 */
 	}
 }

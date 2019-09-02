@@ -20,7 +20,7 @@ export class Debug {
 
 	signatureText: Text;
 
-	target: GameService;
+	game: GameService;
 
 	screenReference = [
 		{
@@ -100,14 +100,19 @@ export class Debug {
 		align: 'right',
 	});
 
-	constructor(private app: Application) {
-		app.stage.addChild(this.head);
-		app.stage.addChild(this.foot);
+	init(game: GameService) {
+		this.game = game;
+
+		game.app.stage.addChild(this.head);
+		game.app.stage.addChild(this.foot);
 
 		this.drawPadResize();
 		this.drawScreenReference();
 		this.drawSize();
 		this.drawSignature();
+	}
+
+	constructor() {
 	}
 
 	run() {
@@ -133,7 +138,7 @@ export class Debug {
 
 	drawTick() {
 
-		const s = 'Tick: ' + this.target.world.tick;
+		const s = 'Tick: ' + this.game.world.tick;
 
 		if (this.tickText) {
 			this.tickText.text = s;
@@ -172,6 +177,14 @@ export class Debug {
 		this.foot.addChild(sign);
 	}
 
+	setDisplay(visible: boolean) {
+		for (const r of this.screenReference) {
+			if (r.o) {
+				r.o.visible = visible;
+			}
+		}
+	}
+
 	drawScreenReference() {
 
 		const gs = Camera.gridSize;
@@ -182,7 +195,7 @@ export class Debug {
 				r.o = (new Graphics())
 					.beginFill(0xffffff, 0.1)
 					.drawRect(0, 0, gs, gs);
-				this.app.stage.addChild(r.o);
+				this.game.app.stage.addChild(r.o);
 				r.o.pivot.x = r.pivot[0] * gs;
 				r.o.pivot.y = r.pivot[1] * gs;
 			}
@@ -202,7 +215,7 @@ export class Debug {
 		}
 		this.prevFPSCount = 0;
 
-		const s = 'FPS: ' + this.app.ticker.FPS.toFixed(1);
+		const s = 'FPS: ' + this.game.app.ticker.FPS.toFixed(1);
 		if (this.prevFPS === s) {
 			return;
 		}
