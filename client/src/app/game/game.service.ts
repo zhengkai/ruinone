@@ -4,6 +4,7 @@ import { World } from './world';
 import { Editor } from './editor';
 import { Screen } from './screen';
 import { Debug } from './debug';
+import { Camera } from './camera';
 import { Menu } from './menu';
 
 @Injectable({
@@ -35,6 +36,9 @@ export class GameService {
 	}
 
 	tick(delta: number) {
+
+		Camera.calc();
+
 		this.screen.run();
 		this.world.run();
 		this.debug.run();

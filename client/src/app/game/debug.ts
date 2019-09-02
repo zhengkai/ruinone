@@ -1,6 +1,7 @@
 import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
 import { GameService } from './game.service';
 import { Input } from './input';
+import { Camera } from './camera';
 
 export class Debug {
 
@@ -102,27 +103,32 @@ export class Debug {
 	constructor(private app: Application) {
 		app.stage.addChild(this.head);
 		app.stage.addChild(this.foot);
+
+		this.drawPadResize();
+		this.drawScreenReference();
+		this.drawSize();
+		this.drawSignature();
 	}
 
 	run() {
 
-		const s = this.app.screen;
-
 		const h = this.head;
-		h.position.x = s.width - 6;
+		h.position.x = Camera.w - 6;
 		h.position.y = 6;
 		h.zIndex = 100000;
 
 		const f = this.foot;
-		f.position.x = s.width - 6;
-		f.position.y = s.height - 6;
+		f.position.x = Camera.w - 6;
+		f.position.y = Camera.h - 6;
 		f.zIndex = 100000;
 
 		this.drawTick();
-		this.drawSignature();
 		this.drawFPS();
-		this.drawSize();
 		this.drawPad();
+
+		if (Camera.resize)  {
+			this.drawSize();
+		}
 	}
 
 	drawTick() {
@@ -142,20 +148,8 @@ export class Debug {
 	}
 
 	drawSize() {
-		const sc = this.app.screen;
 
-		const so = this.target.screen;
-
-		if (this.prevSizeW === so.prevW && this.prevSizeH === so.prevH)  {
-			return;
-		}
-		this.prevSizeW = so.prevW;
-		this.prevSizeH = so.prevH;
-
-		this.drawPadResize();
-		this.drawScreenReference();
-
-		const s = 'Screen: ' + sc.width + 'x' + sc.height  + ', Grid: ' + so.gridSize;
+		const s = 'Screen: ' + Camera.w + 'x' + Camera.h  + ', Grid: ' + Camera.gridSize;
 
 		if (this.sizeText) {
 			this.sizeText.text = s;
@@ -180,8 +174,7 @@ export class Debug {
 
 	drawScreenReference() {
 
-		const so = this.target.screen;
-		const gs = so.gridSize;
+		const gs = Camera.gridSize;
 
 		for (const r of this.screenReference) {
 			if (!r.o) {
@@ -193,8 +186,8 @@ export class Debug {
 				r.o.pivot.x = r.pivot[0] * gs;
 				r.o.pivot.y = r.pivot[1] * gs;
 			}
-			r.o.position.x = so.centerW + r.offset[0] * gs;
-			r.o.position.y = so.centerH + r.offset[1] * gs;
+			r.o.position.x = Camera.centerX + r.offset[0] * gs;
+			r.o.position.y = Camera.centerY + r.offset[1] * gs;
 
 			const scale = gs / r.gridSize;
 			r.o.scale.set(scale, scale);
@@ -228,7 +221,7 @@ export class Debug {
 
 	drawPadResize() {
 
-		const gs = this.target.screen.gridSize;
+		const gs = Camera.gridSize;
 		const os = gs * 0.3;
 
 		for (const a of this.gamePadButton) {

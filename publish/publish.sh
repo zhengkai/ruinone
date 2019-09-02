@@ -15,6 +15,6 @@ TARGET='/www/site/ruin.one/www'
 
 	rsync --partial -vzrtopg -e ssh "${DIR}/dist/prod/" "freya:${TARGET}"
 
-	ssh freya "cd '${TARGET}' ; rm *.gz ; rm assets/*.gz ; rm assets/.git* ; gzip -r -k *" || :
+	ssh freya "cd '${TARGET}' ; rm *.gz ; rm assets/*.gz ; gzip -r -k *" || :
 
 ) 200>"${DIR}/lock-publish"

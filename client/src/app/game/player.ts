@@ -1,5 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { Screen } from './screen';
+import { Camera } from './camera';
 
 export interface PlayerDump {
 	id: number;
@@ -18,11 +19,11 @@ export class Player {
 	x = 0;
 	y = 0;
 
-	constructor(private screen: Screen) {
+	constructor() {
 
 		this.x = Math.random() * 5 + 3;
 
-		const gs = screen.gridSize;
+		const gs = Camera.gridSize;
 
 		this.gridSize = gs;
 
@@ -42,7 +43,11 @@ export class Player {
 		this.y = a.y;
 	}
 
-	draw(x: number, y: number) {
+	draw() {
+
+		Camera.draw(this.graphic, this.x, this.y);
+
+	/*
 
 		const gs = this.screen.gridSize;
 
@@ -52,5 +57,6 @@ export class Player {
 
 		const scale = gs / this.gridSize;
 		g.scale.set(scale, scale);
+	 */
 	}
 }

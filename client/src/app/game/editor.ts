@@ -1,5 +1,6 @@
 import { Application, Container, Graphics, Rectangle } from 'pixi.js';
 import { GameService } from './game.service';
+import { Camera } from './camera';
 
 export interface Grid {
 	x: number;
@@ -52,7 +53,6 @@ export class Editor {
 		this.game = game;
 
 		const s = game.screen;
-		const gs = s.gridSize;
 
 		s.center.addChild(this.c);
 		s.center.addChild(this.map);
@@ -128,7 +128,7 @@ export class Editor {
 
 		const y = - (o.y - this.pos.y);
 
-		const gs = this.game.screen.gridSize / 2;
+		const gs = Camera.gridSize / 2;
 
 		o.c.position.x = (gs + 3) * x;
 		o.c.position.y = (gs + 3) * y;
@@ -140,7 +140,7 @@ export class Editor {
 			return;
 		}
 
-		const gs = this.game.screen.gridSize / 2;
+		const gs = Camera.gridSize / 2;
 
 		const c = new Container();
 

@@ -2,6 +2,7 @@ import { Application, Container } from 'pixi.js';
 import { GameService } from './game.service';
 import { Player, PlayerDump } from './player';
 import { Input } from './input';
+import { Camera } from './camera';
 import { Screen } from './screen';
 import { Field, FieldDump } from './field';
 
@@ -20,7 +21,6 @@ export class World {
 
 	tick = 0;
 
-	gridSize = 0;
 	gridSizeChange = false;
 
 	x = 8;
@@ -64,6 +64,8 @@ export class World {
 		this.loadMap();
 
 		this.center();
+
+		Camera.refresh();
 	}
 
 	loadMap() {
@@ -94,7 +96,7 @@ export class World {
 
 			const f = this.newField();
 			f.setDump(v);
-			f.draw(this.x, this.y);
+			f.draw();
 			this.field.push(f);
 		}
 		goSetMap(map);
@@ -107,8 +109,7 @@ export class World {
 		if (!this.c.visible) {
 			return;
 		}
-		this.posRefresh = this.game.screen.resize;
-		if (this.posRefresh) {
+		if (Camera.posChange) {
 			this.center();
 		}
 
@@ -128,7 +129,7 @@ export class World {
 				this.child.set(v.id, p);
 			}
 
-			this.setPos(v.x, v.y);
+			Camera.setPos(v.x, v.y);
 
 			p.setDump(v);
 		}
@@ -139,45 +140,29 @@ export class World {
 	}
 
 	center() {
-		const s = this.game.screen;
 		const p = this.c.position;
-		p.x = s.centerW;
-		p.y = s.centerH;
+		p.x = Camera.centerX;
+		p.y = Camera.centerY;
 
-		this.gridSize = s.gridSize;
-	}
-
-	setPos(x: number, y: number) {
-
-		x = Math.max(6, x);
-		y = Math.max(3, y);
-
-		if (this.x === x && this.y === y) {
-			return;
-		}
-
-		this.posRefresh = true;
-		this.x = x;
-		this.y = y;
 	}
 
 	loop() {
 
-		const gs = this.game.screen.gridSize;
+		const gs = Camera.gridSize;
 
 		this.child.forEach((p) => {
-			p.draw(this.x, this.y);
+			p.draw();
 		});
 
-		if (this.posRefresh) {
-			for (const f of this.field) {
-				f.draw(this.x, this.y);
-			}
+		for (const f of this.field) {
+			f.draw();
+		}
+		if (Camera.posChange) {
 		}
 	}
 
 	newPlayer(): Player {
-		const p = new Player(this.game.screen);
+		const p = new Player();
 		this.c.addChild(p.graphic);
 		// this.child.push(p);
 		return p;

@@ -1,5 +1,6 @@
 import { Application, Container, Text, Graphics, TextStyle, Rectangle } from 'pixi.js';
 import { GameService } from './game.service';
+import { Camera } from './camera';
 
 export class Menu {
 
@@ -30,8 +31,7 @@ export class Menu {
 		}
 
 		const g = this.game;
-		const s = g.screen;
-		const gs = s.gridSize;
+		const gs = Camera.gridSize;
 
 		const c = new Container();
 		this.topMenu = c;
@@ -49,15 +49,14 @@ export class Menu {
 			g.switch('editor');
 		});
 
-		c.position.x = s.centerW - c.width / 2;
+		c.position.x = Camera.centerX - c.width / 2;
+		console.log('Camera.centerX', Camera.centerX, c.position.x);
 		c.position.y = margin;
-
-		// console.log(c.width, c.position.x, s.centerW);
 	}
 
 	addMenu(name: string, clickCb: any) {
 
-		const gs = this.game.screen.gridSize / 2;
+		const gs = Camera.gridSize / 2;
 
 		const a = new Container();
 		this.topMenu.addChild(a);
@@ -115,7 +114,7 @@ export class Menu {
 	}
 
 	run() {
-		if (this.game.screen.resize) {
+		if (Camera.resize) {
 			this.buildTop();
 		}
 	}

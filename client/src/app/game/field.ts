@@ -1,5 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { Screen } from './screen';
+import { Camera } from './camera';
 
 export interface FieldDump {
 	id: number;
@@ -21,7 +22,7 @@ export class Field {
 
 		this.x = Math.random() * 5 + 3;
 
-		const gs = screen.gridSize;
+		const gs = Camera.gridSize;
 
 		this.gridSize = gs;
 
@@ -41,15 +42,19 @@ export class Field {
 		this.y = a.y;
 	}
 
-	draw(x: number, y: number) {
+	draw() {
 
-		const gs = this.screen.gridSize;
+		// const gs = Camera.gridSize;
 
+		Camera.draw(this.graphic, this.x, this.y);
+
+		/*
 		const g = this.graphic;
 		g.position.x = gs * (this.x - x);
 		g.position.y = - gs * (this.y - y);
 
 		const scale = gs / this.gridSize;
 		g.scale.set(scale, scale);
+		 */
 	}
 }

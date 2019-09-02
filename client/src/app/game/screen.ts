@@ -1,21 +1,13 @@
 import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
+import { Camera } from './camera';
 
 export class Screen {
-
-	wasmReady = false;
 
 	head = new Container();
 	center = new Container();
 
-	resize = false;
-
 	prevW = 1;
 	prevH = 1;
-
-	centerW = 1;
-	centerH = 1;
-
-	gridSize = 16;
 
 	loadingText: Text;
 
@@ -67,30 +59,17 @@ export class Screen {
 
 	calc() {
 
-		const sc = this.app.screen;
-
-		const w = sc.width;
-		const h = sc.height;
-
-		if (this.prevW === w && this.prevH === h) {
-			this.resize = false;
+		if (!Camera.resize) {
 			return;
 		}
-		this.resize = true;
-		this.prevW = w;
-		this.prevH = h;
 
-		const size = Math.min(w / 16, h / 9);
-		this.gridSize = Math.floor(size / 2) * 2;
+		const gs = Camera.gridSize;
 
-		this.centerW = Math.round(w / 2);
-		this.centerH = Math.round(h / 2);
+		this.head.position.x = gs;
+		this.head.position.y = gs / 2;
 
-		this.head.position.x = this.gridSize;
-		this.head.position.y = this.gridSize / 2;
-
-		this.center.position.x = this.centerW;
-		this.center.position.y = this.centerH;
+		this.center.position.x = Camera.centerX;
+		this.center.position.y = Camera.centerY;
 		// console.log('Screen.calc', this.gridSize, this);
 	}
 
@@ -100,7 +79,7 @@ export class Screen {
 
 	loading() {
 
-		const size = Math.max(16, Math.round(this.gridSize / 3));
+		const size = Math.max(16, Math.round(Camera.gridSize / 3));
 
 		this.cleanLoading();
 		const text = new Text('Loading ...', {

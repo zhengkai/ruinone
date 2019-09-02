@@ -1,4 +1,5 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
+import { Camera } from './game/camera';
 import { Application } from 'pixi.js';
 import * as WebFont from 'webfontloader';
 import { GameService } from './game/game.service';
@@ -62,6 +63,8 @@ export class AppComponent {
 			resizeTo: window,
 		});
 		app.renderer.backgroundColor = 0x112233;
+
+		Camera.init(app.screen);
 
 		this.el.nativeElement.appendChild(app.view);
 		this.app = app;
