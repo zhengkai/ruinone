@@ -27,35 +27,30 @@ export class Debug {
 			name: 'topleft',
 			offset: [-8, -4.5],
 			pivot: [0, 0],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			name: 'topright',
 			offset: [8, -4.5],
 			pivot: [1, 0],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			name: 'center',
 			offset: [-0.5, -0.5],
 			pivot: [0, 0],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			name: 'bottomleft',
 			offset: [-8, 4.5],
 			pivot: [0, 1],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			name: 'bottomright',
 			offset: [8, 4.5],
 			pivot: [1, 1],
-			gridSize: 1,
 			o: null,
 		},
 	];
@@ -64,31 +59,26 @@ export class Debug {
 		{
 			key: 'w',
 			position: [-1, 0],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			key: 'e',
 			position: [1, 0],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			key: 'n',
 			position: [0, -1],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			key: 's',
 			position: [0, 1],
-			gridSize: 1,
 			o: null,
 		},
 		{
 			key: 'jump',
 			position: [3, 0],
-			gridSize: 1,
 			o: null,
 		},
 	];
@@ -132,6 +122,8 @@ export class Debug {
 		this.drawPad();
 
 		if (Camera.resize)  {
+			this.drawScreenReference(true);
+			this.drawPadResize(true);
 			this.drawSize();
 		}
 	}
@@ -185,25 +177,28 @@ export class Debug {
 		}
 	}
 
-	drawScreenReference() {
+	drawScreenReference(reset?: boolean) {
 
 		const gs = Camera.gridSize;
 
 		for (const r of this.screenReference) {
+
+			if (reset && r.o) {
+				r.o.destroy();
+				r.o = null;
+			}
+
 			if (!r.o) {
-				r.gridSize = gs;
 				r.o = (new Graphics())
 					.beginFill(0xffffff, 0.1)
 					.drawRect(0, 0, gs, gs);
 				this.game.app.stage.addChild(r.o);
+				r.o.visible = false;
 				r.o.pivot.x = r.pivot[0] * gs;
 				r.o.pivot.y = r.pivot[1] * gs;
 			}
 			r.o.position.x = Camera.centerX + r.offset[0] * gs;
 			r.o.position.y = Camera.centerY + r.offset[1] * gs;
-
-			const scale = gs / r.gridSize;
-			r.o.scale.set(scale, scale);
 		}
 	}
 
@@ -232,27 +227,28 @@ export class Debug {
 		this.prevFPSText = fps;
 	}
 
-	drawPadResize() {
+	drawPadResize(reset?: boolean) {
 
 		const gs = Camera.gridSize;
 		const os = gs * 0.3;
 
 		for (const a of this.gamePadButton) {
-			// console.log(a);
+
+			if (reset && a.o) {
+				a.o.destroy();
+				a.o = null;
+			}
 
 			if (!a.o) {
-				a.gridSize = os;
 				a.o = (new Graphics())
 					.beginFill(0xffffff)
 					.drawRoundedRect(0, 0, os, os, 0.2 * os);
+				a.o.alpha = 0.3;
 				this.foot.addChild(a.o);
 			}
 
 			a.o.position.x = - gs * 3.5 + os * a.position[0] * 0.95;
 			a.o.position.y = - gs * 0.8 + os * a.position[1] * 0.95;
-
-			const scale = os / a.gridSize;
-			a.o.scale.set(scale, scale);
 		}
 	}
 

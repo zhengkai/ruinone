@@ -20,12 +20,13 @@ export class Control {
 
 	init(game: GameService) {
 		this.game = game;
-		game.debug.setDisplay(this.debugDisplay);
 	}
 
 	run() {
 
 		const c = Input.get();
+
+		this.runCommon(c);
 
 		switch (this.game.mode) {
 
@@ -43,7 +44,6 @@ export class Control {
 		// debug
 
 		if (this.debugPrev !== c.debug) {
-			// console.log('debug', c.debug);
 			this.debugPrev = c.debug;
 			if (c.debug) {
 				this.debugDisplay = !this.debugDisplay;
@@ -80,9 +80,10 @@ export class Control {
 			if (c.pause) {
 				this.pauseSet = !this.pauseSet;
 				goPause(this.pauseSet);
+				this.game.world.pause = this.pauseSet;
+				this.game.ui.pause.visible = this.pauseSet;
 			}
 		}
-
 	}
 
 	runEditor(c: InputData) {

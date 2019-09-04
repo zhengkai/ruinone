@@ -28,6 +28,7 @@ export class Camera {
 	static screen: Rectangle;
 
 	static resize = true;
+	static resizeTs = 0;
 
 	static init(screen: Rectangle) {
 		this.screen = screen;
@@ -51,6 +52,15 @@ export class Camera {
 			return;
 		}
 
+		if (!this.resizeTs) {
+			this.resizeTs = +Date.now();
+			return;
+		}
+		if (Date.now() - this.resizeTs < 300) {
+			return;
+		}
+		this.resizeTs = 0;
+
 		this.resize = true;
 		this.w = w;
 		this.h = h;
@@ -61,7 +71,7 @@ export class Camera {
 		this.centerX = Math.round(w / 2);
 		this.centerY = Math.round(h / 2);
 
-		console.log('Camera calc', w, h, this.gridSize, this.centerX, this.centerY);
+		// console.log('Camera calc', w, h, this.gridSize, this.centerX, this.centerY);
 	}
 
 	static setPos(x: number, y: number) {

@@ -12,19 +12,21 @@ export class Field implements CameraDraw {
 
 	dump: FieldDump;
 
-	gridSize = 10;
-
 	graphic: Graphics;
 	x = 0;
 	y = 0;
 
 	constructor() {
+		this.build();
+	}
 
-		this.x = Math.random() * 5 + 3;
+	build() {
+
+		if (this.graphic) {
+			this.graphic.destroy();
+		}
 
 		const gs = Camera.gridSize;
-
-		this.gridSize = gs;
 
 		const w = gs;
 		const h = gs;

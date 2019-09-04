@@ -18,6 +18,8 @@ export class World {
 
 	tick = 0;
 
+	pause = false;
+
 	gridSizeChange = false;
 
 	x = 8;
@@ -25,16 +27,7 @@ export class World {
 
 	child = new Map();
 
-	pos = {
-		x: 0,
-		y: 0,
-	};
-	posRefresh = false;
-
 	field = Array<Field>();
-
-	jumpSent = false;
-	runSent = 0;
 
 	constructor() {
 		this.c.visible = false;
@@ -112,6 +105,10 @@ export class World {
 			this.center();
 		}
 
+		if (this.pause && !Camera.resize) {
+			return;
+		}
+
 		let ts = +Date.now();
 		const dump = goDump();
 		ts = +Date.now() - ts;
@@ -145,6 +142,19 @@ export class World {
 	loop() {
 
 		const gs = Camera.gridSize;
+
+		if (Camera.resize) {
+
+			this.child.forEach((v) => {
+				v.build();
+				this.c.addChild(v.graphic);
+			});
+
+			for (const f of this.field) {
+				f.build();
+				this.c.addChild(f.graphic);
+			}
+		}
 
 		this.child.forEach((p) => {
 			Camera.draw(p);

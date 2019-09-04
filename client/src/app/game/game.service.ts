@@ -7,6 +7,7 @@ import { Screen } from './screen';
 import { Debug } from './debug';
 import { Camera } from './camera';
 import { Menu } from './menu';
+import { UI } from './ui';
 import { Control } from './control';
 
 @Injectable({
@@ -22,6 +23,7 @@ export class GameService {
 	menu: Menu;
 	editor: Editor;
 	control: Control;
+	ui: UI;
 
 	mode = 'world';
 
@@ -67,6 +69,9 @@ export class GameService {
 
 		this.debug = new Debug();
 		this.debug.init(this);
+
+		this.ui = new UI();
+		this.ui.init(this);
 
 		this.menu = new Menu();
 		this.menu.init(this);
