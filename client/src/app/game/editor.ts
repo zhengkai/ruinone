@@ -159,6 +159,11 @@ export class Editor {
 
 	gridGraphics(o: Grid) {
 
+		let visible = false;
+		if (o.select && o.select.visible) {
+			visible = true;
+		}
+
 		o.c.removeChildren();
 
 		const gs = Camera.gridSize / 2;
@@ -166,7 +171,7 @@ export class Editor {
 		const select = (new Graphics())
 			.beginFill(0xddeeff)
 			.drawRect(0, 0, gs, gs);
-		select.visible = false;
+		select.visible = visible;
 
 		o.c.addChild(select);
 		o.select = select;
@@ -188,7 +193,6 @@ export class Editor {
 		const y = - (o.y - this.pos.y);
 		o.c.position.x = (gs + 3) * x;
 		o.c.position.y = (gs + 3) * y;
-
 	}
 
 	clickGrid(o: Grid, rightMouse: boolean) {

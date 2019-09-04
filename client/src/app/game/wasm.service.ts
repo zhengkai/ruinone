@@ -24,7 +24,7 @@ export class WasmService {
 			this.ev.addEventListener('initialized', (event) => {
 				resolve();
 			});
-			this.instantiateWasm('/assets/main.wasm');
+			this.instantiateWasm('assets/main.wasm');
 		});
 	}
 
