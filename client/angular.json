@@ -30,7 +30,9 @@
 						"styles": [
 							"src/styles.scss"
 						],
-						"scripts": []
+						"scripts": [
+							"src/wasm_exec.js"
+						]
 					},
 					"configurations": {
 						"production": {

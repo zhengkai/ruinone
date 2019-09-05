@@ -20,6 +20,8 @@ export class Debug {
 
 	signatureText: Text;
 
+	gitHash = '';
+
 	game: GameService;
 
 	screenReference = [
@@ -103,6 +105,11 @@ export class Debug {
 	}
 
 	constructor() {
+		const s = 'gitHash';
+		const hash = window[s];
+		if (hash && hash !== s) {
+			this.gitHash = hash;
+		}
 	}
 
 	run() {
@@ -162,7 +169,12 @@ export class Debug {
 		if (this.signatureText) {
 			return;
 		}
-		const sign = new Text('Ruin.One by Zheng Kai', this.style);
+		let s = 'Ruin.One by Zheng Kai';
+		if (this.gitHash) {
+			s += ' / ' + this.gitHash;
+		}
+
+		const sign = new Text(s, this.style);
 		sign.anchor.x = 1;
 		sign.anchor.y = 1;
 		this.signatureText = sign;
