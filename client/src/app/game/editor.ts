@@ -1,5 +1,5 @@
 import { Application, Container, Graphics, Rectangle } from 'pixi.js';
-import { GameService } from './game.service';
+import { GamePart } from './game.part';
 import { Camera } from './camera';
 
 export interface Grid {
@@ -11,9 +11,7 @@ export interface Grid {
 	cover: Graphics;
 }
 
-export class Editor {
-
-	game: GameService;
+export class Editor extends GamePart {
 
 	pos = {
 		x: 15,
@@ -31,6 +29,7 @@ export class Editor {
 	map = new Container();
 
 	constructor() {
+		super();
 		this.c.visible = false;
 		this.map.visible = false;
 		this.c.zIndex = 300000;
@@ -54,12 +53,9 @@ export class Editor {
 		}
 	}
 
-	init(game: GameService) {
+	init() {
 
-		this.game = game;
-
-		const s = game.screen;
-
+		const s = this.n.screen;
 		s.center.addChild(this.c);
 		s.center.addChild(this.map);
 

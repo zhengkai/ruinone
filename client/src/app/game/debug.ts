@@ -1,9 +1,9 @@
 import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
-import { GameService } from './game.service';
+import { GamePart } from './game.part';
 import { Input } from './input';
 import { Camera } from './camera';
 
-export class Debug {
+export class Debug extends GamePart {
 
 	head = new Container();
 	foot = new Container();
@@ -21,8 +21,6 @@ export class Debug {
 	signatureText: Text;
 
 	gitHash = '';
-
-	game: GameService;
 
 	screenReference = [
 		{
@@ -92,11 +90,10 @@ export class Debug {
 		align: 'right',
 	});
 
-	init(game: GameService) {
-		this.game = game;
+	init() {
 
-		game.app.stage.addChild(this.head);
-		game.app.stage.addChild(this.foot);
+		this.n.app.stage.addChild(this.head);
+		this.n.app.stage.addChild(this.foot);
 
 		this.drawPadResize();
 		this.drawScreenReference();
@@ -105,6 +102,7 @@ export class Debug {
 	}
 
 	constructor() {
+		super();
 		const s = 'gitHash';
 		const hash = window[s];
 		if (hash && hash !== s) {
@@ -137,7 +135,7 @@ export class Debug {
 
 	drawTick() {
 
-		const s = 'Tick: ' + this.game.world.tick;
+		const s = 'Tick: ' + this.n.world.tick;
 
 		if (this.tickText) {
 			this.tickText.text = s;
@@ -204,7 +202,7 @@ export class Debug {
 				r.o = (new Graphics())
 					.beginFill(0xffffff, 0.1)
 					.drawRect(0, 0, gs, gs);
-				this.game.app.stage.addChild(r.o);
+				this.n.app.stage.addChild(r.o);
 				r.o.visible = false;
 				r.o.pivot.x = r.pivot[0] * gs;
 				r.o.pivot.y = r.pivot[1] * gs;
@@ -222,7 +220,7 @@ export class Debug {
 		}
 		this.prevFPSCount = 0;
 
-		const s = 'FPS: ' + this.game.app.ticker.FPS.toFixed(1);
+		const s = 'FPS: ' + this.n.app.ticker.FPS.toFixed(1);
 		if (this.prevFPS === s) {
 			return;
 		}
@@ -244,7 +242,7 @@ export class Debug {
 		const gs = Camera.gridSize;
 		const os = gs * 0.3;
 
-		for (const a of this.gamePadButton) {
+		this.gamePadButton.forEach((a) => {
 
 			if (reset && a.o) {
 				a.o.destroy();
@@ -261,13 +259,13 @@ export class Debug {
 
 			a.o.position.x = - gs * 3.5 + os * a.position[0] * 0.95;
 			a.o.position.y = - gs * 0.8 + os * a.position[1] * 0.95;
-		}
+		});
 	}
 
 	drawPad() {
 		const i = Input.get();
-		for (const b of this.gamePadButton) {
-			b.o.alpha = i[b.key] ? 0.8 : 0.3;
-		}
+		this.gamePadButton.forEach((a) => {
+			a.o.alpha = i[a.key] ? 0.8 : 0.3;
+		});
 	}
 }

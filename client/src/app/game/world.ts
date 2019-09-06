@@ -1,26 +1,20 @@
-import { Application, Container } from 'pixi.js';
-import { GameService } from './game.service';
+import { Container } from 'pixi.js';
+import { GamePart } from './game.part';
 import { Player, PlayerDump } from './player';
 import { Camera } from './camera';
-import { Screen } from './screen';
 import { Field, FieldDump } from './field';
 
 declare const goSetMap: any;
 declare const goPause: any;
-declare const goField: any;
 declare const goDump: any;
 
-export class World {
-
-	game: GameService;
+export class World extends GamePart {
 
 	c = new Container();
 
 	tick = 0;
 
 	pause = false;
-
-	gridSizeChange = false;
 
 	x = 8;
 	y = 3;
@@ -30,6 +24,7 @@ export class World {
 	field = Array<Field>();
 
 	constructor() {
+		super();
 		this.c.visible = false;
 	}
 
@@ -44,12 +39,10 @@ export class World {
 		this.loadMap();
 	}
 
-	init(g: GameService) {
-
-		this.game = g;
+	init() {
 
 		this.c.zIndex = -100;
-		g.app.stage.addChild(this.c);
+		this.n.app.stage.addChild(this.c);
 
 		const seed = Math.floor(Math.random() * 999999999);
 
@@ -69,7 +62,7 @@ export class World {
 
 		let i = -1;
 		let id = 0;
-		const editor = this.game.editor;
+		const editor = this.n.editor;
 		const map = editor.loadMapStr();
 		for (const s of map) {
 			i++;

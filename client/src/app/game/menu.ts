@@ -1,12 +1,10 @@
 import { Application, Container, Text, Graphics, TextStyle, Rectangle } from 'pixi.js';
-import { GameService } from './game.service';
+import { GamePart } from './game.part';
 import { Camera } from './camera';
 
-export class Menu {
+export class Menu extends GamePart {
 
 	topMenu: Container;
-
-	game: GameService;
 
 	menuCount = 0;
 
@@ -14,13 +12,7 @@ export class Menu {
 
 	style = new TextStyle();
 
-	constructor() {
-	}
-
-	init(game: GameService) {
-
-		this.game = game;
-
+	init() {
 		this.buildTop();
 	}
 
@@ -30,23 +22,22 @@ export class Menu {
 			this.topMenu.destroy();
 		}
 
-		const g = this.game;
 		const gs = Camera.gridSize;
 
 		const c = new Container();
 		c.zIndex = 300000;
 		this.topMenu = c;
-		this.game.app.stage.addChild(c);
+		this.n.app.stage.addChild(c);
 
 		const margin = gs * 0.2;
 
 		this.menuCount = 0;
 
 		this.addMenu('Game', () => {
-			g.switch('world');
+			this.n.switch('world');
 		});
 		this.addMenu('Editor', () => {
-			g.switch('editor');
+			this.n.switch('editor');
 		});
 
 		this.addMenuBg(c);

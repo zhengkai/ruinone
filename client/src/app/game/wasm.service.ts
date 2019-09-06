@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
-declare const WebAssembly: any;
+// declare const WebAssembly: any;
 declare const Go: any;
-declare const goFibonacci: any;
 
 @Injectable({
 	providedIn: 'root'

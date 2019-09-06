@@ -1,7 +1,8 @@
 import { Application, Container, Text, Graphics, TextStyle } from 'pixi.js';
+import { GamePart } from './game.part';
 import { Camera } from './camera';
 
-export class Screen {
+export class Screen extends GamePart {
 
 	head = new Container();
 	center = new Container();
@@ -15,11 +16,15 @@ export class Screen {
 
 	style = new TextStyle();
 
-	constructor(private app: Application) {
+	constructor() {
+		super();
+	}
+
+	nexusDone() {
 		this.head.zIndex = 100000;
 		this.center.zIndex = 100000;
-		app.stage.addChild(this.head);
-		app.stage.addChild(this.center);
+		this.n.app.stage.addChild(this.head);
+		this.n.app.stage.addChild(this.center);
 
 		this.calc();
 		this.loading();
@@ -27,13 +32,6 @@ export class Screen {
 
 	run() {
 		this.calc();
-
-		/*
-		if (!this.demo) {
-			this.demo = true;
-			this.doDemo();
-		}
-		 */
 	}
 
 	doDemo() {

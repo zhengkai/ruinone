@@ -1,11 +1,11 @@
-import { GameService } from './game.service';
+import { GamePart } from './game.part';
 import { Input, InputData } from './input';
 
 declare const goPause: any;
 declare const goJump: any;
 declare const goRun: any;
 
-export class Control {
+export class Control extends GamePart {
 
 	jumpSent = false;
 	runSent = 0;
@@ -16,19 +16,13 @@ export class Control {
 	pauseSet = false;
 	pausePrev = false;
 
-	game: GameService;
-
-	init(game: GameService) {
-		this.game = game;
-	}
-
 	run() {
 
 		const c = Input.get();
 
 		this.runCommon(c);
 
-		switch (this.game.mode) {
+		switch (this.n.mode) {
 
 			case 'world':
 				this.runGame(c);
@@ -47,7 +41,7 @@ export class Control {
 			this.debugPrev = c.debug;
 			if (c.debug) {
 				this.debugDisplay = !this.debugDisplay;
-				this.game.debug.setDisplay(this.debugDisplay);
+				this.n.debug.setDisplay(this.debugDisplay);
 			}
 		}
 	}
@@ -80,8 +74,8 @@ export class Control {
 			if (c.pause) {
 				this.pauseSet = !this.pauseSet;
 				goPause(this.pauseSet);
-				this.game.world.pause = this.pauseSet;
-				this.game.ui.pause.visible = this.pauseSet;
+				this.n.world.pause = this.pauseSet;
+				this.n.ui.pause.visible = this.pauseSet;
 			}
 		}
 	}

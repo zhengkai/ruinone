@@ -1,10 +1,8 @@
 import { Application, Container, Text, Graphics } from 'pixi.js';
-import { GameService } from './game.service';
+import { GamePart } from './game.part';
 import { Camera } from './camera';
 
-export class UI {
-
-	game: GameService;
+export class UI extends GamePart {
 
 	config = [
 		{
@@ -22,9 +20,7 @@ export class UI {
 
 	pause = new Container();
 
-	init(g: GameService) {
-		this.game = g;
-
+	init() {
 		this.drawAll();
 	}
 
@@ -75,7 +71,7 @@ export class UI {
 		p.addChild(bg);
 		p.addChild(text);
 
-		const s = this.game.screen;
+		const s = this.n.screen;
 
 		switch (c.position) {
 

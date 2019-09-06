@@ -2,7 +2,7 @@ import { Component, ElementRef, HostListener } from '@angular/core';
 import { Camera } from './game/camera';
 import { Application } from 'pixi.js';
 import * as WebFont from 'webfontloader';
-import { GameService } from './game/game.service';
+import { Nexus } from './game/nexus';
 import { WasmService } from './game/wasm.service';
 import { Input } from './game/input';
 
@@ -17,42 +17,20 @@ declare const goTick: any;
 })
 export class AppComponent {
 
-	app: Application;
-
 	title = 'RuinOne';
 
 	constructor(
 		private el: ElementRef,
-		private game: GameService,
+		private nexus: Nexus,
 		private wasm: WasmService,
 	) {
 		this.init();
 
-		this.wait();
-	}
-
-	wait() {
 		Promise.all([
-			this.wasm.wait,
+			wasm.wait,
 			this.fontWait(),
 		]).then(() => {
-			this.game.init();
-			this.app.ticker.add((delta) => {
-				this.game.tick(delta);
-			});
-		});
-	}
-
-	fontWait() {
-		return new Promise((resolve, reject) => {
-			WebFont.load({
-				google: {
-					families: ['Roboto Mono', 'Roboto']
-				},
-				active: () => {
-					resolve();
-				},
-			});
+			this.nexus.init();
 		});
 	}
 
@@ -67,8 +45,7 @@ export class AppComponent {
 		Camera.init(app.screen);
 
 		this.el.nativeElement.appendChild(app.view);
-		this.app = app;
-		this.game.setApp(app);
+		this.nexus.setApp(app);
 		console.log('app init');
 
 		const ver = '1';
@@ -77,6 +54,19 @@ export class AppComponent {
 			localStorage.clear();
 			localStorage.setItem('ver', ver);
 		}
+	}
+
+	fontWait() {
+		return new Promise((resolve, reject) => {
+			WebFont.load({
+				google: {
+					families: ['Roboto Mono', 'Roboto']
+				},
+				active: () => {
+					resolve();
+				},
+			});
+		});
 	}
 
 	@HostListener('click', ['$event'])
